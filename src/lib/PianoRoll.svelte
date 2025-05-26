@@ -8,7 +8,7 @@
     width: number;
   }
 
-  export let pressedKeys: Set<number>;
+  let { pressedKeys }: { pressedKeys: Set<number> } = $props();
 
   const SVG_WIDTH = 100;
   const C4 = 48;
@@ -40,12 +40,7 @@
   const svgHeight = KEY_HEIGHT_WHITE / totalX;
 </script>
 
-<svg
-  class="border border-red-500"
-  version="1.1"
-  viewBox="0 0 {SVG_WIDTH} {svgHeight}"
-  role="graphics-object"
->
+<svg version="1.1" viewBox="0 0 {SVG_WIDTH} {svgHeight}" role="graphics-object">
   <g>
     {#each keys as key}
       {#if !key.isBlack}

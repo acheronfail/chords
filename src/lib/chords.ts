@@ -31,4 +31,3 @@ for (let root = 0; root < 12; root++) {
   add({ name: `${noteNames[root]} Augmented 7`, notes: makeChord([0, 4, 8, 11]) });
   add({ name: `${noteNames[root]} Diminished 7`, notes: makeChord([0, 3, 6, 9]) });
 }
-console.log(chords);

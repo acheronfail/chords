@@ -1,18 +1,21 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import { getMidiDevices, getMidiDevice } from "$lib/midi";
+  import { chords, createKey } from "$lib/chords";
   import PianoRoll from "$lib/PianoRoll.svelte";
-  import { chords, createKey } from "../lib/chords";
+  import { untrack } from "svelte";
+
+  const MIDI_DEVICE_ID_KEY = "midi-device-id";
 
   let midiDevices = $state<{ name: string; id: string }[]>([]);
-  let selectedDeviceId = $state<string | null>(null);
+  let selectedDeviceId = $state<string | null>(localStorage.getItem(MIDI_DEVICE_ID_KEY) ?? null);
   let pressedKeys = new SvelteSet<number>();
 
   let chordKey = $derived(createKey(Array.from(pressedKeys).map((k) => k % 12)));
   let chord = $derived(chords.get(chordKey));
 
   refreshDevices().then(() => {
-    if (midiDevices.length > 0) {
+    if (selectedDeviceId === null && midiDevices.length > 0) {
       selectedDeviceId = midiDevices[0].id;
     }
   });
@@ -31,6 +34,8 @@
       case 128:
         pressedKeys.delete(note);
         break;
+      case 248: // timing
+        break;
       default:
         console.log(
           `MIDI: device=${input.name} command=${command} note=${note} velocity=${velocity}`,
@@ -39,6 +44,7 @@
     }
   };
 
+  // when selected device id changes
   $effect(() => {
     let unsubscribe = () => {};
     let cleanedUp = false;
@@ -50,6 +56,9 @@
         input.addEventListener("midimessage", handler);
         unsubscribe = () => input.removeEventListener("midimessage", handler);
       });
+      localStorage.setItem(MIDI_DEVICE_ID_KEY, selectedDeviceId);
+    } else {
+      localStorage.removeItem(MIDI_DEVICE_ID_KEY);
     }
 
     return () => {
