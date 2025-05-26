@@ -2,21 +2,19 @@
   import { SvelteSet } from "svelte/reactivity";
   import { getMidiDevices, getMidiDevice } from "$lib/midi";
   import { chords, createKey } from "$lib/chords";
+  import { settings as s, cachedSettings as c } from "$lib/stores.svelte";
   import PianoRoll from "$lib/PianoRoll.svelte";
-  import { untrack } from "svelte";
-
-  const MIDI_DEVICE_ID_KEY = "midi-device-id";
 
   let midiDevices = $state<{ name: string; id: string }[]>([]);
-  let selectedDeviceId = $state<string | null>(localStorage.getItem(MIDI_DEVICE_ID_KEY) ?? null);
   let pressedKeys = new SvelteSet<number>();
 
   let chordKey = $derived(createKey(Array.from(pressedKeys).map((k) => k % 12)));
   let chord = $derived(chords.get(chordKey));
+  let nameOptions = $derived({ sharps: s.current.chordNotationUsesSharps });
 
   refreshDevices().then(() => {
-    if (selectedDeviceId === null && midiDevices.length > 0) {
-      selectedDeviceId = midiDevices[0].id;
+    if (c.current.midiDeviceId === null && midiDevices.length > 0) {
+      c.current.midiDeviceId = midiDevices[0].id;
     }
   });
 
@@ -49,16 +47,13 @@
     let unsubscribe = () => {};
     let cleanedUp = false;
 
-    if (selectedDeviceId) {
-      getMidiDevice(selectedDeviceId, (input) => {
+    if (c.current.midiDeviceId) {
+      getMidiDevice(c.current.midiDeviceId, (input) => {
         if (cleanedUp) return;
         const handler = createMessageHandler(input);
         input.addEventListener("midimessage", handler);
         unsubscribe = () => input.removeEventListener("midimessage", handler);
       });
-      localStorage.setItem(MIDI_DEVICE_ID_KEY, selectedDeviceId);
-    } else {
-      localStorage.removeItem(MIDI_DEVICE_ID_KEY);
     }
 
     return () => {
@@ -70,11 +65,15 @@
 
 <header>
   <button class="rounded border p-2" onclick={refreshDevices}>refresh devices</button>
-  <select bind:value={selectedDeviceId}>
+  <select bind:value={c.current.midiDeviceId}>
     {#each midiDevices as device}
       <option value={device.id}>{device.name}</option>
     {/each}
   </select>
+  <label>
+    <input type="checkbox" bind:checked={s.current.chordNotationUsesSharps} />
+    Use sharps
+  </label>
 </header>
 
 <main>
@@ -82,7 +81,9 @@
   <div>
     <p>Pressed keys: {Array.from(pressedKeys).join(", ") ?? "-"}</p>
     <p>Chord Key: {chordKey}</p>
-    <p>Chord: {chord ? chord.name : "-"}</p>
+    <p>
+      Chord: {chord ? `${chord.shortName(nameOptions)} (${chord.name(nameOptions)})` : "-"}
+    </p>
   </div>
 </main>
 
