@@ -7,19 +7,21 @@
 
   import Settings from "$lib/Settings.svelte";
   import { base } from "$app/paths";
+  import { routes } from "../lib/routes";
 
   let { children } = $props();
   let settingsOpen = $state(false);
 
-  let path = $derived(page.url.pathname.replace(base, ""));
   let title = $derived.by(() => {
-    switch (path) {
-      case "/":
+    switch (page.url.pathname) {
+      case routes.home:
         return "Home";
-      case "/quiz":
-        return "Quiz!";
-      default:
-        return path;
+      case routes.leadSheet:
+        return "Practice - Lead Sheet";
+      default: {
+        const parts = page.url.pathname.split("/");
+        return parts[parts.length - 1];
+      }
     }
   });
 </script>
@@ -30,10 +32,10 @@
 
 <AppBar>
   {#snippet lead()}
-    {#if path !== "/"}
+    {#if page.url.pathname !== routes.home}
       <a href={base} class="btn preset-filled">
         <ArrowLeftIcon />
-        <span>exit</span>
+        <span>back</span>
       </a>
     {/if}
   {/snippet}

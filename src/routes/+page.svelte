@@ -1,5 +1,6 @@
 <script lang="ts">
   import { PianoIcon } from "@lucide/svelte";
+  import { routes } from "../lib/routes";
 
   interface CardProps {
     href: string;
@@ -12,7 +13,7 @@
 
   let cards: CardProps[] = [
     {
-      href: "lead-sheet",
+      href: routes.leadSheet,
       kind: "Practice",
       title: "Lead Sheet",
       description:
