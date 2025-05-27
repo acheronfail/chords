@@ -4,7 +4,7 @@
   import { PianoIcon, SettingsIcon } from "@lucide/svelte";
 
   import { getMidiDevice } from "$lib/midi";
-  import { chords, createKey } from "$lib/chords";
+  import { chords, createKey, midiNumberToNoteName } from "$lib/chords";
   import { settings as s, cachedSettings as c } from "$lib/stores.svelte";
   import PianoRoll from "$lib/PianoRoll.svelte";
   import Settings from "../lib/Settings.svelte";
@@ -72,7 +72,11 @@
 <main>
   <PianoRoll {pressedKeys} />
   <div>
-    <p>Pressed keys: {Array.from(pressedKeys).join(", ") ?? "-"}</p>
+    <p>
+      Pressed keys: {Array.from(pressedKeys)
+        .map((key) => midiNumberToNoteName(key, { sharps: s.current.chordNotationUsesSharps }))
+        .join(", ") ?? "-"}
+    </p>
     <p>Chord Key: {chordKey}</p>
     <p>
       Chord: {chord ? `${chord.shortName(nameOptions)} (${chord.name(nameOptions)})` : "-"}

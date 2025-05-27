@@ -29,25 +29,43 @@ const ChordNames: Record<ChordKind, [string, string]> = {
   [ChordKind.Augmented7]: ["Augmented 7", "aug7"],
 };
 
-class Chord {
-  static noteNames = {
-    flats: ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"],
-    sharps: ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"],
-  };
+const NOTE_NAMES = {
+  flats: ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"],
+  sharps: ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"],
+};
 
+export interface NoteNameOptions {
+  sharps?: boolean;
+}
+
+export function midiNumberToNoteName(
+  n: number,
+  { sharps }: NoteNameOptions = { sharps: false },
+): string {
+  if (n < 0 || n > 127) {
+    return "?";
+  }
+
+  const names = sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
+  const note = names[n % 12];
+  const number = Math.floor(n / 12) - 1; // MIDI note numbers start at C-1 (MIDI number 0)
+  return `${note}${number}`;
+}
+
+class Chord {
   constructor(
     private readonly root: number,
     public readonly notes: number[],
     private readonly kind: ChordKind,
   ) {}
 
-  name({ sharps }: { sharps: boolean } = { sharps: false }): string {
-    const names = sharps ? Chord.noteNames.sharps : Chord.noteNames.flats;
+  name({ sharps }: NoteNameOptions = { sharps: false }): string {
+    const names = sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
     return `${names[this.root]} ${ChordNames[this.kind][0]}`;
   }
 
-  shortName({ sharps }: { sharps: boolean } = { sharps: false }): string {
-    const names = sharps ? Chord.noteNames.sharps : Chord.noteNames.flats;
+  shortName({ sharps }: NoteNameOptions = { sharps: false }): string {
+    const names = sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
     return `${names[this.root]}${ChordNames[this.kind][1]}`;
   }
 }
