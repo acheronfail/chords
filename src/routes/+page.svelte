@@ -1,105 +1,56 @@
 <script lang="ts">
-  import { SvelteSet } from "svelte/reactivity";
-  import { AppBar } from "@skeletonlabs/skeleton-svelte";
-  import { PianoIcon, SettingsIcon } from "@lucide/svelte";
+  import { PianoIcon } from "@lucide/svelte";
 
-  import { getMidiDevice } from "$lib/midi";
-  import { chords, chordsByNotes, createKey, midiNumberToNoteName } from "$lib/chords";
-  import { settings as s, cachedSettings as c } from "$lib/stores.svelte";
-  import PianoRoll from "$lib/PianoRoll.svelte";
-  import Settings from "../lib/Settings.svelte";
+  interface CardProps {
+    href: string;
+    kind: string;
+    title: string;
+    description: string;
+    highestScore?: number;
+    lastPlayed?: Date;
+  }
 
-  let pressedKeys = new SvelteSet<number>();
-  let settingsOpen = $state(false);
-
-  let chordKey = $derived(createKey(Array.from(pressedKeys).map((k) => k % 12)));
-  let possibleChords = $derived(chordsByNotes.get(chordKey));
-  let nameOptions = $derived({ sharps: s.current.chordNotationUsesSharps });
-
-  let selectedChord = $state("");
-  let chordMatches = $derived(
-    possibleChords?.map((chord) => chord.name({ sharps: true }))?.includes(selectedChord) ??
-      (pressedKeys.size > 0 ? false : undefined),
-  );
-
-  const createMessageHandler = (input: MIDIInput) => (message: MIDIMessageEvent) => {
-    if (!message.data) return;
-    const [command, note, velocity] = message.data;
-    switch (command) {
-      case 144:
-        pressedKeys.add(note);
-        break;
-      case 128:
-        pressedKeys.delete(note);
-        break;
-      case 248: // timing
-        break;
-      default:
-        console.log(
-          `MIDI: device=${input.name} command=${command} note=${note} velocity=${velocity}`,
-        );
-        break;
-    }
-  };
-
-  // when selected device id changes
-  $effect(() => {
-    let unsubscribe = () => {};
-    let cleanedUp = false;
-
-    if (c.current.midiDeviceId) {
-      getMidiDevice(c.current.midiDeviceId, (input) => {
-        if (cleanedUp) return;
-        const handler = createMessageHandler(input);
-        input.addEventListener("midimessage", handler);
-        unsubscribe = () => input.removeEventListener("midimessage", handler);
-      });
-    }
-
-    return () => {
-      cleanedUp = true;
-      unsubscribe();
-    };
-  });
+  let cards: CardProps[] = [
+    {
+      href: "lead-sheet",
+      kind: "Practice",
+      title: "Lead Sheet",
+      description:
+        "Practice your ability to recognise and play chords from Chord Symbols; things like Cmaj7, Dm7, G7, etc.",
+    },
+  ];
 </script>
 
-<AppBar>
-  {#snippet lead()}
-    <PianoIcon size={24} />
-  {/snippet}
-  {#snippet trail()}
-    <button type="button" class="btn-icon preset-filled" onclick={() => (settingsOpen = true)}>
-      <SettingsIcon size={24} />
-    </button>
-  {/snippet}
-  <h1>Chords</h1>
-</AppBar>
+{#snippet card({ kind, title, href, description, highestScore, lastPlayed }: CardProps)}
+  <a
+    {href}
+    class="card preset-filled-surface-100-900 border-surface-200-800 card-hover divide-surface-200-800 block max-w-md divide-y overflow-hidden border-[1px]"
+  >
+    <header>
+      <div class="flex w-full items-center justify-center p-4">
+        <PianoIcon size={48} />
+      </div>
+    </header>
 
-<main>
-  <PianoRoll {pressedKeys} />
-  <div>
-    <p>
-      Pressed keys: {Array.from(pressedKeys)
-        .map((key) => midiNumberToNoteName(key, { sharps: s.current.chordNotationUsesSharps }))
-        .join(", ") ?? "-"}
-    </p>
-    <p>Chord Key: {chordKey}</p>
-    <p>
-      Chord: {possibleChords
-        ?.map((chord) => `${chord.shortName(nameOptions)} (${chord.name(nameOptions)})`)
-        .join(" - ") ?? "-"}
-    </p>
-    <div>
-      <label for="chord" class="label">Chord</label>
-      <select id="chord" class="select" bind:value={selectedChord}>
-        <option value="">None</option>
-        {#each chords as [, chord]}
-          <option value={chord.name({ sharps: true })}>{chord.shortName(nameOptions)}</option>
-        {/each}
-      </select>
-    </div>
-    <p>Matches? {chordMatches !== undefined ? (chordMatches ? "Yes" : "No") : ""}</p>
-  </div>
+    <article class="space-y-4 p-4">
+      <div>
+        <h2 class="h6">{kind}</h2>
+        <h3 class="h3">{title}</h3>
+      </div>
+      <p class="text-surface-300">{description}</p>
+    </article>
+
+    <footer class="flex items-center justify-between gap-4 p-4">
+      <small class="text-surface-300">High Score: {highestScore ?? "-"}</small>
+      <small class="text-surface-300"
+        >Last Played: {lastPlayed?.toLocaleDateString() ?? "never"}</small
+      >
+    </footer>
+  </a>
+{/snippet}
+
+<main class="grid w-full grid-cols-2 items-center justify-items-center gap-4 p-4">
+  {#each cards as props}
+    {@render card(props)}
+  {/each}
 </main>
-
-<Settings bind:open={settingsOpen} />
