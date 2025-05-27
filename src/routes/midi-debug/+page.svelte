@@ -1,16 +1,15 @@
 <script lang="ts">
-  import { SvelteSet } from "svelte/reactivity";
-
-  import { getMidiDevice } from "$lib/midi";
-  import { chordsByNotes, createKey, midiNumberToNoteName } from "$lib/chords";
-  import { settings as s, cachedSettings as c } from "$lib/stores.svelte";
-  import PianoRoll from "$lib/PianoRoll.svelte";
   import { Switch } from "@skeletonlabs/skeleton-svelte";
 
-  let pressedKeys = new SvelteSet<number>();
+  import { chordsByNotes, createChordKey, midiNumberToNoteName } from "$lib/chords";
+  import { settings as s } from "$lib/stores.svelte";
+  import PianoRoll from "$lib/PianoRoll.svelte";
+  import { getPressedKeys } from "$lib/context-midi";
+
+  let pressedKeys = getPressedKeys();
   let showNames = $state(true);
 
-  let chordKey = $derived(createKey(Array.from(pressedKeys).map((k) => k % 12)));
+  let chordKey = $derived(createChordKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
   let nameOptions = $derived({ sharps: s.current.chordNotationUsesSharps });
 
@@ -25,46 +24,6 @@
       .map((key) => midiNumberToNoteName(key, { sharps: s.current.chordNotationUsesSharps }))
       .join(", "),
   );
-
-  const createMessageHandler = (input: MIDIInput) => (message: MIDIMessageEvent) => {
-    if (!message.data) return;
-    const [command, note, velocity] = message.data;
-    switch (command) {
-      case 144:
-        pressedKeys.add(note);
-        break;
-      case 128:
-        pressedKeys.delete(note);
-        break;
-      case 248: // timing
-        break;
-      default:
-        console.log(
-          `MIDI: device=${input.name} command=${command} note=${note} velocity=${velocity}`,
-        );
-        break;
-    }
-  };
-
-  // when selected device id changes
-  $effect(() => {
-    let unsubscribe = () => {};
-    let cleanedUp = false;
-
-    if (c.current.midiDeviceId) {
-      getMidiDevice(c.current.midiDeviceId, (input) => {
-        if (cleanedUp) return;
-        const handler = createMessageHandler(input);
-        input.addEventListener("midimessage", handler);
-        unsubscribe = () => input.removeEventListener("midimessage", handler);
-      });
-    }
-
-    return () => {
-      cleanedUp = true;
-      unsubscribe();
-    };
-  });
 </script>
 
 <main>

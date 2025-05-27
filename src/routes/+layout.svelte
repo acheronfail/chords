@@ -1,59 +1,58 @@
 <script lang="ts">
   import "../app.css";
 
-  import { AppBar } from "@skeletonlabs/skeleton-svelte";
-  import { ArrowLeftIcon, SettingsIcon } from "@lucide/svelte";
-  import { page } from "$app/state";
+  import { getPressedKeys, initPressedKeys } from "$lib/context-midi";
+  import { getMidiDevice } from "$lib/midi";
+  import { cachedSettings } from "$lib/stores.svelte";
+  import Header from "./Header.svelte";
 
-  import Settings from "$lib/Settings.svelte";
-  import { base } from "$app/paths";
-  import { routes } from "../lib/routes";
+  initPressedKeys();
 
   let { children } = $props();
-  let settingsOpen = $state(false);
+  let pressedKeys = getPressedKeys();
 
-  let title = $derived.by(() => {
-    switch (page.url.pathname) {
-      case routes.home:
-        return "Home";
-      case routes.leadSheet:
-        return "Practice - Lead Sheet";
-      case routes.midiDebug:
-        return "MIDI Debugger";
-      default: {
-        const parts = page.url.pathname.split("/");
-        return parts[parts.length - 1];
-      }
+  const createMessageHandler = (input: MIDIInput) => (message: MIDIMessageEvent) => {
+    if (!message.data) return;
+    const [command, note, velocity] = message.data;
+    switch (command) {
+      case 144: // note down
+        pressedKeys.add(note);
+        break;
+      case 128: // note up
+        pressedKeys.delete(note);
+        break;
+      case 248: // timing
+        break;
+      default:
+        console.log(
+          `MIDI: device=${input.name} command=${command} note=${note} velocity=${velocity}`,
+        );
+        break;
     }
+  };
+
+  // when selected device id changes
+  $effect(() => {
+    let unsubscribe = () => {};
+    let cleanedUp = false;
+
+    if (cachedSettings.current.midiDeviceId) {
+      getMidiDevice(cachedSettings.current.midiDeviceId, (input) => {
+        if (cleanedUp) return;
+        const handler = createMessageHandler(input);
+        input.addEventListener("midimessage", handler);
+        unsubscribe = () => input.removeEventListener("midimessage", handler);
+      });
+    }
+
+    return () => {
+      cleanedUp = true;
+      unsubscribe();
+    };
   });
 </script>
 
-<svelte:head>
-  <title>Chords | {title}</title>
-</svelte:head>
-
-<AppBar>
-  {#snippet lead()}
-    {#if page.url.pathname !== routes.home}
-      <a href={base} class="btn preset-outlined-surface-500">
-        <ArrowLeftIcon />
-        <span>back</span>
-      </a>
-    {/if}
-  {/snippet}
-  {#snippet trail()}
-    <button
-      type="button"
-      class="btn-icon preset-outlined-surface-500"
-      onclick={() => (settingsOpen = true)}
-    >
-      <SettingsIcon />
-    </button>
-  {/snippet}
-  <h1>{title}</h1>
-</AppBar>
-
-<Settings bind:open={settingsOpen} />
+<Header />
 
 <main>
   {@render children()}

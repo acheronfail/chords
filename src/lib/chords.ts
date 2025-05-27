@@ -2,8 +2,14 @@ import { SvelteMap } from "svelte/reactivity";
 
 type ChordNotesKey = string;
 
-export const createKey = (notes: number[]): ChordNotesKey => {
-  return Array.from(new Set(notes.sort((a, b) => a - b))).join(",");
+export const createChordKey = (notes: Iterable<number>): ChordNotesKey => {
+  return Array.from(
+    new Set(
+      Array.from(notes)
+        .map((n) => n % 12)
+        .sort((a, b) => a - b),
+    ),
+  ).join(",");
 };
 
 enum ChordKind {
@@ -80,10 +86,10 @@ export const chordsByNotes = new SvelteMap<ChordNotesKey, Chord[]>();
 const add = (chord: Chord) => {
   chords.set(chord.name(), chord);
   const bucket =
-    chordsByNotes.get(createKey(chord.notes)) ??
+    chordsByNotes.get(createChordKey(chord.notes)) ??
     (() => {
       const bucket: Chord[] = [];
-      chordsByNotes.set(createKey(chord.notes), bucket);
+      chordsByNotes.set(createChordKey(chord.notes), bucket);
       return bucket;
     })();
   bucket.push(chord);
