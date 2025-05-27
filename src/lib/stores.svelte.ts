@@ -1,4 +1,3 @@
-// new.svelte.ts / js
 import { PersistentState } from "$lib/persistent-state.svelte";
 
 export const settings = new PersistentState(

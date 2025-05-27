@@ -1,26 +1,20 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
-  import { getMidiDevices, getMidiDevice } from "$lib/midi";
+  import { AppBar } from "@skeletonlabs/skeleton-svelte";
+  import { PianoIcon, SettingsIcon } from "@lucide/svelte";
+
+  import { getMidiDevice } from "$lib/midi";
   import { chords, createKey } from "$lib/chords";
   import { settings as s, cachedSettings as c } from "$lib/stores.svelte";
   import PianoRoll from "$lib/PianoRoll.svelte";
+  import Settings from "../lib/Settings.svelte";
 
-  let midiDevices = $state<{ name: string; id: string }[]>([]);
   let pressedKeys = new SvelteSet<number>();
+  let settingsOpen = $state(false);
 
   let chordKey = $derived(createKey(Array.from(pressedKeys).map((k) => k % 12)));
   let chord = $derived(chords.get(chordKey));
   let nameOptions = $derived({ sharps: s.current.chordNotationUsesSharps });
-
-  refreshDevices().then(() => {
-    if (c.current.midiDeviceId === null && midiDevices.length > 0) {
-      c.current.midiDeviceId = midiDevices[0].id;
-    }
-  });
-
-  async function refreshDevices() {
-    midiDevices = await getMidiDevices();
-  }
 
   const createMessageHandler = (input: MIDIInput) => (message: MIDIMessageEvent) => {
     if (!message.data) return;
@@ -63,18 +57,17 @@
   });
 </script>
 
-<header>
-  <button class="rounded border p-2" onclick={refreshDevices}>refresh devices</button>
-  <select bind:value={c.current.midiDeviceId}>
-    {#each midiDevices as device}
-      <option value={device.id}>{device.name}</option>
-    {/each}
-  </select>
-  <label>
-    <input type="checkbox" bind:checked={s.current.chordNotationUsesSharps} />
-    Use sharps
-  </label>
-</header>
+<AppBar>
+  {#snippet lead()}
+    <PianoIcon size={24} />
+  {/snippet}
+  {#snippet trail()}
+    <button type="button" class="btn-icon preset-filled" onclick={() => (settingsOpen = true)}>
+      <SettingsIcon size={24} />
+    </button>
+  {/snippet}
+  <span>Web Chords</span>
+</AppBar>
 
 <main>
   <PianoRoll {pressedKeys} />
@@ -87,4 +80,4 @@
   </div>
 </main>
 
-<footer></footer>
+<Settings bind:open={settingsOpen} />
