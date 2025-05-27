@@ -1,0 +1,105 @@
+name: Deploy to Pages
+
+on:
+  push:
+    branches: ['master']
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets the GITHUB_TOKEN permissions to allow deployment to GitHub Pages
+permissions:
+  pages: write
+  id-token: write
+  # GitHub Pages only needs `read`, but we have `write` so we can push commits
+  # as well as create github releases and upload assets to them
+  contents: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Checks
+        run: npm run checks
+
+  deploy:
+    needs: ['checks']
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # repo setup
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # build
+      - name: Extract version
+        id: meta
+        run: |
+          echo "name=$(jq -r .name package.json)" >> "$GITHUB_OUTPUT"
+          echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build for Pages
+        run: |
+          export VITE_BUILD_VERSION="${{ steps.meta.outputs.version }}-${{ steps.meta.outputs.sha }}"
+          npm run build
+
+      # deploy to github pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './build'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # publish build files to github in case others want to embed
+      - name: Push git tag
+        run: |
+          git config --global user.name  "${{ steps.meta.outputs.name }}-ci"
+          git config --global user.email "acheronfail+${{ steps.meta.outputs.name }}-ci@example.com"
+          git tag "v${{ steps.meta.outputs.version }}"
+          git push origin "v${{ steps.meta.outputs.version }}"
+
+      - name: Build for Release
+        run: |
+          rm -rf build
+          export VITE_BUILD_VERSION="${{ steps.meta.outputs.version }}-${{ steps.meta.outputs.sha }}"
+          npm run build -- --base=/
+          zip -r ${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}.zip build
+
+      - name: Upload ${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}.zip to releases
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "${{ steps.meta.outputs.name }} v${{ steps.meta.outputs.version }}"
+          tag_name: "v${{ steps.meta.outputs.version }}"
+          files: ${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}.zip

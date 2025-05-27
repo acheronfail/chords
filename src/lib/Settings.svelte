@@ -84,5 +84,10 @@
     <button class="btn preset-outlined-surface-500 mt-10" onclick={settingsReset}>
       Reset all settings to defaults
     </button>
+    <div class="text-surface-500 flex items-center justify-center">
+      {import.meta.env.VITE_BUILD_VERSION
+        ? `Version: ${import.meta.env.VITE_BUILD_VERSION}`
+        : "Version: development"}
+    </div>
   </div>
 </Blanket>
