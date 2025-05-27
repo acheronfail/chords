@@ -2,7 +2,8 @@ name: Releases
 
 on:
   push:
-    branches: ['master']
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -30,7 +31,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
@@ -85,13 +86,6 @@ jobs:
         uses: actions/deploy-pages@v4
 
       # publish build files to github in case others want to embed
-      - name: Push git tag
-        run: |
-          git config --global user.name  "${{ steps.meta.outputs.name }}-ci"
-          git config --global user.email "acheronfail+${{ steps.meta.outputs.name }}-ci@example.com"
-          git tag "v${{ steps.meta.outputs.version }}"
-          git push origin "v${{ steps.meta.outputs.version }}"
-
       - name: Build for Release
         run: |
           rm -rf build
@@ -102,6 +96,5 @@ jobs:
       - name: Upload ${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}.zip to releases
         uses: softprops/action-gh-release@v2
         with:
-          name: "${{ steps.meta.outputs.name }} v${{ steps.meta.outputs.version }}"
-          tag_name: "v${{ steps.meta.outputs.version }}"
+          name: "${{ steps.meta.outputs.name }} ${{ github.ref_name }}"
           files: ${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}.zip
