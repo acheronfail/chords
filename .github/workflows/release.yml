@@ -1,4 +1,4 @@
-name: Deploy to Pages
+name: Releases
 
 on:
   push:
@@ -37,7 +37,8 @@ jobs:
       - name: Checks
         run: npm run checks
 
-  deploy:
+  releases:
+    name: Deploy to Pages and Releases
     needs: ['checks']
     environment:
       name: github-pages
