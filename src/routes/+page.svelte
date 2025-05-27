@@ -4,7 +4,7 @@
   import { PianoIcon, SettingsIcon } from "@lucide/svelte";
 
   import { getMidiDevice } from "$lib/midi";
-  import { chords, createKey, midiNumberToNoteName } from "$lib/chords";
+  import { chords, chordsByNotes, createKey, midiNumberToNoteName } from "$lib/chords";
   import { settings as s, cachedSettings as c } from "$lib/stores.svelte";
   import PianoRoll from "$lib/PianoRoll.svelte";
   import Settings from "../lib/Settings.svelte";
@@ -13,8 +13,14 @@
   let settingsOpen = $state(false);
 
   let chordKey = $derived(createKey(Array.from(pressedKeys).map((k) => k % 12)));
-  let chord = $derived(chords.get(chordKey));
+  let possibleChords = $derived(chordsByNotes.get(chordKey));
   let nameOptions = $derived({ sharps: s.current.chordNotationUsesSharps });
+
+  let selectedChord = $state("");
+  let chordMatches = $derived(
+    possibleChords?.map((chord) => chord.name({ sharps: true }))?.includes(selectedChord) ??
+      (pressedKeys.size > 0 ? false : undefined),
+  );
 
   const createMessageHandler = (input: MIDIInput) => (message: MIDIMessageEvent) => {
     if (!message.data) return;
@@ -79,8 +85,20 @@
     </p>
     <p>Chord Key: {chordKey}</p>
     <p>
-      Chord: {chord ? `${chord.shortName(nameOptions)} (${chord.name(nameOptions)})` : "-"}
+      Chord: {possibleChords
+        ?.map((chord) => `${chord.shortName(nameOptions)} (${chord.name(nameOptions)})`)
+        .join(" - ") ?? "-"}
     </p>
+    <div>
+      <label for="chord" class="label">Chord</label>
+      <select id="chord" class="select" bind:value={selectedChord}>
+        <option value="">None</option>
+        {#each chords as [, chord]}
+          <option value={chord.name({ sharps: true })}>{chord.shortName(nameOptions)}</option>
+        {/each}
+      </select>
+    </div>
+    <p>Matches? {chordMatches !== undefined ? (chordMatches ? "Yes" : "No") : ""}</p>
   </div>
 </main>
 

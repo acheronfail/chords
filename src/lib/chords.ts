@@ -1,8 +1,8 @@
 import { SvelteMap } from "svelte/reactivity";
 
-type ChordKey = string;
+type ChordNotesKey = string;
 
-export const createKey = (notes: number[]): ChordKey => {
+export const createKey = (notes: number[]): ChordNotesKey => {
   return Array.from(new Set(notes.sort((a, b) => a - b))).join(",");
 };
 
@@ -15,7 +15,9 @@ enum ChordKind {
   Major7,
   Minor7,
   Diminished7,
+  HalfDiminished7,
   Augmented7,
+  Major6,
 }
 const ChordNames: Record<ChordKind, [string, string]> = {
   [ChordKind.Major]: ["Major", ""],
@@ -26,7 +28,9 @@ const ChordNames: Record<ChordKind, [string, string]> = {
   [ChordKind.Major7]: ["Major 7", "maj7"],
   [ChordKind.Minor7]: ["Minor 7", "m7"],
   [ChordKind.Diminished7]: ["Diminished 7", "dim7"],
+  [ChordKind.HalfDiminished7]: ["Half Diminished 7", "-7"],
   [ChordKind.Augmented7]: ["Augmented 7", "aug7"],
+  [ChordKind.Major6]: ["Major 6", "6"],
 };
 
 const NOTE_NAMES = {
@@ -70,10 +74,19 @@ class Chord {
   }
 }
 
-export const chords = new SvelteMap<ChordKey, Chord>();
+export const chords = new SvelteMap<string, Chord>();
+export const chordsByNotes = new SvelteMap<ChordNotesKey, Chord[]>();
 
 const add = (chord: Chord) => {
-  chords.set(createKey(chord.notes), chord);
+  chords.set(chord.name(), chord);
+  const bucket =
+    chordsByNotes.get(createKey(chord.notes)) ??
+    (() => {
+      const bucket: Chord[] = [];
+      chordsByNotes.set(createKey(chord.notes), bucket);
+      return bucket;
+    })();
+  bucket.push(chord);
 };
 
 // FIXME: augmented chorts collide - CAug == AbAug
@@ -90,4 +103,7 @@ for (let root = 0; root < 12; root++) {
   add(new Chord(root, makeChord([0, 3, 7, 10]), ChordKind.Minor7));
   add(new Chord(root, makeChord([0, 4, 8, 11]), ChordKind.Augmented7));
   add(new Chord(root, makeChord([0, 3, 6, 9]), ChordKind.Diminished7));
+  add(new Chord(root, makeChord([0, 3, 6, 10]), ChordKind.HalfDiminished7));
+
+  add(new Chord(root, makeChord([0, 4, 7, 9]), ChordKind.Major6));
 }
