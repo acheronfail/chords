@@ -80,11 +80,11 @@ class Chord {
   }
 }
 
-export const chords = new SvelteMap<string, Chord>();
+export const chordsByName = new SvelteMap<string, Chord>();
 export const chordsByNotes = new SvelteMap<ChordNotesKey, Chord[]>();
 
 const add = (chord: Chord) => {
-  chords.set(chord.name(), chord);
+  chordsByName.set(chord.name(), chord);
   const bucket =
     chordsByNotes.get(createChordKey(chord.notes)) ??
     (() => {
