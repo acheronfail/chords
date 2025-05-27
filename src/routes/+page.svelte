@@ -66,7 +66,7 @@
       <SettingsIcon size={24} />
     </button>
   {/snippet}
-  <span>Web Chords</span>
+  <h1>Chords</h1>
 </AppBar>
 
 <main>

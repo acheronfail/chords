@@ -22,6 +22,7 @@ concurrency:
 
 jobs:
   checks:
+    name: Checks and Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
