@@ -27,9 +27,10 @@
   });
 </script>
 
-<Blanket bind:open title="Settings">
-  <div class="flex flex-col gap-2">
-    <label for="midiDeviceId" class="label"> MIDI device </label>
+<Blanket bind:open title="Settings" classes="flex flex-col w-full justify-between p-4 gap-10">
+  <div class="flex flex-col">
+    <h3 class="font-bold">MIDI</h3>
+    <label for="midiDeviceId" class="label">Selected Device</label>
     <div class="flex items-center gap-2">
       <select id="midiDeviceId" class="select" bind:value={cachedSettings.current.midiDeviceId}>
         {#each midiDevices as device}
@@ -40,38 +41,42 @@
         Refresh devices
       </button>
     </div>
+  </div>
 
-    <div class="flex flex-col">
-      <div class="flex items-center gap-2">
-        <label for="pianoRollMinKey" class="label">
-          <span class="label-text">First key on piano roll</span>
-          <select id="pianoRollMinKey" class="select" bind:value={settings.current.pianoRollMinKey}>
-            {#each availableKeys.slice(0, settings.current.pianoRollMaxKey - 12 + 1) as key}
-              <option value={key}
-                >{midiNumberToNoteName(key, {
-                  sharps: settings.current.chordNotationUsesSharps,
-                })}</option
-              >
-            {/each}
-          </select>
-        </label>
-        <label for="pianoRollMaxKey" class="label">
-          <span class="label-text">Last key on piano roll</span>
-          <select id="pianoRollMaxKey" class="select" bind:value={settings.current.pianoRollMaxKey}>
-            {#each availableKeys.slice(settings.current.pianoRollMinKey + 12) as key}
-              <option value={key}
-                >{midiNumberToNoteName(key, {
-                  sharps: settings.current.chordNotationUsesSharps,
-                })}</option
-              >
-            {/each}
-          </select>
-        </label>
-      </div>
+  <div class="flex flex-col">
+    <h3 class="font-bold">Piano Roll</h3>
+    <div class="flex items-center gap-2">
+      <label for="pianoRollMinKey" class="label">
+        <span class="label-text">First key on piano roll</span>
+        <select id="pianoRollMinKey" class="select" bind:value={settings.current.pianoRollMinKey}>
+          {#each availableKeys.slice(0, settings.current.pianoRollMaxKey - 12 + 1) as key}
+            <option value={key}
+              >{midiNumberToNoteName(key, {
+                sharps: settings.current.chordNotationUsesSharps,
+              })}</option
+            >
+          {/each}
+        </select>
+      </label>
+      <label for="pianoRollMaxKey" class="label">
+        <span class="label-text">Last key on piano roll</span>
+        <select id="pianoRollMaxKey" class="select" bind:value={settings.current.pianoRollMaxKey}>
+          {#each availableKeys.slice(settings.current.pianoRollMinKey + 12) as key}
+            <option value={key}
+              >{midiNumberToNoteName(key, {
+                sharps: settings.current.chordNotationUsesSharps,
+              })}</option
+            >
+          {/each}
+        </select>
+      </label>
     </div>
+  </div>
 
+  <div class="flex flex-col">
+    <h3 class="font-bold">Miscellaneous</h3>
     <div class="flex items-center justify-between gap-4">
-      <label class="select-none" for="chordNotationUsesSharps">
+      <label class="label cursor-pointer select-none" for="chordNotationUsesSharps">
         Use sharps instead of flats when notating chords (i.e., G♯ instead of A♭)
       </label>
       <Switch
@@ -80,7 +85,9 @@
         onCheckedChange={(e) => (settings.current.chordNotationUsesSharps = e.checked)}
       />
     </div>
+  </div>
 
+  <div class="flex flex-col">
     <button class="btn preset-outlined-surface-500 mt-10" onclick={settingsReset}>
       Reset all settings to defaults
     </button>

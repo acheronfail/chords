@@ -7,8 +7,9 @@
   let {
     open = $bindable(),
     title,
+    classes = "",
     children,
-  }: { open: boolean; title: string; children: Snippet } = $props();
+  }: { open: boolean; title: string; classes?: string; children: Snippet } = $props();
 </script>
 
 {#if open}
@@ -16,7 +17,7 @@
     <div class="m-auto max-w-3xl min-w-3xl">
       <AppBar>
         {#snippet lead()}
-          {title}
+          <h1 class="text-xl font-bold underline">{title}</h1>
         {/snippet}
         {#snippet trail()}
           <button
@@ -28,7 +29,7 @@
           </button>
         {/snippet}
       </AppBar>
-      <div class="p-4">
+      <div class={classes}>
         {@render children()}
       </div>
     </div>

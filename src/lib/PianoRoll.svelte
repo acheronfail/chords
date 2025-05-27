@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { midiNumberToNoteName } from "./chords";
   import { settings } from "./stores.svelte";
 
   interface Key {
@@ -10,7 +11,10 @@
     width: number;
   }
 
-  let { pressedKeys }: { pressedKeys: Set<number> } = $props();
+  let {
+    pressedKeys,
+    showNames = $bindable(false),
+  }: { pressedKeys: Set<number>; showNames?: boolean } = $props();
 
   const SVG_WIDTH = 100;
   const KEY_OFFSETS = [0, 0.6, 1, 1.8, 2, 3, 3.6, 4, 4.7, 5, 5.8, 6];
@@ -42,32 +46,46 @@
   let svgHeight = $derived(KEY_HEIGHT_WHITE / totalX);
 </script>
 
+{#snippet renderKey(key: Key)}
+  {@const x = (key.x - minX) * svgFactor}
+  {@const y = 0}
+  {@const width = key.width * svgFactor}
+  {@const height = (key.isBlack ? KEY_HEIGHT_BLACK : KEY_HEIGHT_WHITE) / totalX}
+  {@const isPressed = pressedKeys.has(key.key)}
+  {@const fill = isPressed
+    ? "fill-primary-500"
+    : key.isBlack
+      ? "fill-surface-950"
+      : "fill-surface-50"}
+
+  <g>
+    <rect {x} {y} {width} {height} class={fill} stroke="black" stroke-width={0.1} />
+    {#if showNames}
+      {@const textSize = width / 2}
+      {@const textY = height - textSize}
+      {@const textFill = isPressed
+        ? "fill-surface-50"
+        : key.isBlack
+          ? "fill-surface-50"
+          : "fill-surface-950"}
+
+      <text x={x + width / 2} y={textY} font-size={textSize} class={textFill} text-anchor="middle">
+        {midiNumberToNoteName(key.key)}
+      </text>
+    {/if}
+  </g>
+{/snippet}
+
 <svg version="1.1" viewBox="0 0 {SVG_WIDTH} {svgHeight}" role="graphics-object">
   <g>
     {#each keys as key}
       {#if !key.isBlack}
-        <rect
-          x={(key.x - minX) * svgFactor}
-          y={0}
-          width={key.width * svgFactor}
-          height={KEY_HEIGHT_WHITE / totalX}
-          fill={pressedKeys.has(key.key) ? "red" : "white"}
-          stroke="black"
-          stroke-width={0.1}
-        />
+        {@render renderKey(key)}
       {/if}
     {/each}
     {#each keys as key}
       {#if key.isBlack}
-        <rect
-          x={(key.x - minX) * svgFactor}
-          y={0}
-          width={key.width * svgFactor}
-          height={KEY_HEIGHT_BLACK / totalX}
-          fill={pressedKeys.has(key.key) ? "red" : "black"}
-          stroke="black"
-          stroke-width={0.1}
-        />
+        {@render renderKey(key)}
       {/if}
     {/each}
   </g>

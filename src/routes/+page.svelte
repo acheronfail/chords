@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { PianoIcon } from "@lucide/svelte";
+  import { PianoIcon, WrenchIcon, type IconProps } from "@lucide/svelte";
   import { routes } from "../lib/routes";
+  import type { Component } from "svelte";
 
   interface CardProps {
     href: string;
@@ -9,27 +10,36 @@
     description: string;
     highestScore?: number;
     lastPlayed?: Date;
+    icon: Component<IconProps>;
   }
 
   let cards: CardProps[] = [
     {
       href: routes.leadSheet,
+      icon: PianoIcon,
       kind: "Practice",
       title: "Lead Sheet",
       description:
         "Practice your ability to recognise and play chords from Chord Symbols; things like Cmaj7, Dm7, G7, etc.",
     },
+    {
+      href: routes.midiDebug,
+      icon: WrenchIcon,
+      kind: "Tools",
+      title: "MIDI Debug",
+      description: "A tool to test and check if your MIDI devices are connected properly.",
+    },
   ];
 </script>
 
-{#snippet card({ kind, title, href, description, highestScore, lastPlayed }: CardProps)}
+{#snippet card({ kind, title, icon, href, description, highestScore, lastPlayed }: CardProps)}
   <a
     {href}
-    class="card preset-filled-surface-100-900 border-surface-200-800 card-hover divide-surface-200-800 block max-w-md divide-y overflow-hidden border-[1px]"
+    class="card preset-filled-surface-100-900 border-surface-200-800 card-hover divide-surface-200-800 block divide-y overflow-hidden border"
   >
     <header>
       <div class="flex w-full items-center justify-center p-4">
-        <PianoIcon size={48} />
+        <svelte:component this={icon} size={48} />
       </div>
     </header>
 
@@ -41,17 +51,21 @@
       <p class="text-surface-300">{description}</p>
     </article>
 
-    <footer class="flex items-center justify-between gap-4 p-4">
-      <small class="text-surface-300">High Score: {highestScore ?? "-"}</small>
-      <small class="text-surface-300"
-        >Last Played: {lastPlayed?.toLocaleDateString() ?? "never"}</small
-      >
-    </footer>
+    {#if highestScore || lastPlayed}
+      <footer class="flex items-center justify-between gap-4 p-4">
+        {#if highestScore}
+          <small class="text-surface-300">High Score: {highestScore}</small>
+        {/if}
+        {#if lastPlayed}
+          <small class="text-surface-300">Last Played: {lastPlayed?.toLocaleDateString()}</small>
+        {/if}
+      </footer>
+    {/if}
   </a>
 {/snippet}
 
-<main class="grid w-full grid-cols-2 items-center justify-items-center gap-4 p-4">
+<div class="grid w-full grid-cols-2 gap-4 p-4">
   {#each cards as props}
     {@render card(props)}
   {/each}
-</main>
+</div>

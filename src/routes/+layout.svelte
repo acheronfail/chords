@@ -18,6 +18,8 @@
         return "Home";
       case routes.leadSheet:
         return "Practice - Lead Sheet";
+      case routes.midiDebug:
+        return "MIDI Debugger";
       default: {
         const parts = page.url.pathname.split("/");
         return parts[parts.length - 1];
@@ -33,14 +35,18 @@
 <AppBar>
   {#snippet lead()}
     {#if page.url.pathname !== routes.home}
-      <a href={base} class="btn preset-filled">
+      <a href={base} class="btn preset-outlined-surface-500">
         <ArrowLeftIcon />
         <span>back</span>
       </a>
     {/if}
   {/snippet}
   {#snippet trail()}
-    <button type="button" class="btn-icon preset-filled" onclick={() => (settingsOpen = true)}>
+    <button
+      type="button"
+      class="btn-icon preset-outlined-surface-500"
+      onclick={() => (settingsOpen = true)}
+    >
       <SettingsIcon />
     </button>
   {/snippet}
@@ -49,4 +55,6 @@
 
 <Settings bind:open={settingsOpen} />
 
-{@render children()}
+<main>
+  {@render children()}
+</main>
