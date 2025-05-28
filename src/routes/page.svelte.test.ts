@@ -6,6 +6,6 @@ import Page from "./+page.svelte";
 describe("/+page.svelte", () => {
   test("should render grid", () => {
     render(Page);
-    expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 2 })).toBeGreaterThan(1);
   });
 });

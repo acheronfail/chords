@@ -12,7 +12,7 @@ export const createChordKey = (notes: Iterable<number>): ChordNotesKey => {
   ).join(",");
 };
 
-enum ChordKind {
+export enum ChordKind {
   Major,
   Minor,
   Diminished,
@@ -25,6 +25,7 @@ enum ChordKind {
   Augmented7,
   Major6,
 }
+
 const ChordNames: Record<ChordKind, [string, string]> = {
   [ChordKind.Major]: ["Major", ""],
   [ChordKind.Minor]: ["Minor", "m"],
@@ -66,7 +67,7 @@ class Chord {
   constructor(
     private readonly root: number,
     public readonly notes: number[],
-    private readonly kind: ChordKind,
+    public readonly kind: ChordKind,
   ) {}
 
   name({ sharps }: NoteNameOptions = { sharps: false }): string {
@@ -82,6 +83,10 @@ class Chord {
 
 export const chordsByName = new SvelteMap<string, Chord>();
 export const chordsByNotes = new SvelteMap<ChordNotesKey, Chord[]>();
+
+export function chordsByKind(kind: ChordKind): Chord[] {
+  return Array.from(chordsByName.values()).filter((chord) => chord.kind === kind);
+}
 
 const add = (chord: Chord) => {
   chordsByName.set(chord.name(), chord);
