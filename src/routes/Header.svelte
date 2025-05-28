@@ -3,9 +3,11 @@
   import { page } from "$app/state";
   import { ArrowLeftIcon, SettingsIcon } from "@lucide/svelte";
   import { AppBar } from "@skeletonlabs/skeleton-svelte";
-  import { routes } from "$lib/routes";
-  import Settings from "$lib/Settings.svelte";
 
+  import { routes } from "$lib/routes";
+  import Settings from "../lib/components/Settings.svelte";
+
+  let { classes = "" }: { classes?: string } = $props();
   let settingsOpen = $state(false);
 
   let title = $derived.by(() => {
@@ -28,7 +30,9 @@
   <title>Chords | {title}</title>
 </svelte:head>
 
-<AppBar>
+<Settings bind:open={settingsOpen} />
+
+<AppBar {classes}>
   {#snippet lead()}
     {#if page.url.pathname !== routes.home}
       <a href={base} class="btn preset-outlined-surface-500">
@@ -48,5 +52,3 @@
   {/snippet}
   <h1>{title}</h1>
 </AppBar>
-
-<Settings bind:open={settingsOpen} />

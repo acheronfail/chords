@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { midiNumberToNoteName } from "./chords";
-  import { settings } from "./stores.svelte";
+  import { midiNumberToNoteName } from "../chords";
+  import { settings } from "../stores.svelte";
 
   interface Key {
     key: number;

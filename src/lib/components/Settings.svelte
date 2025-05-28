@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { cachedSettings, settings, settingsReset } from "./stores.svelte";
+  import { cachedSettings, settings, settingsReset } from "../stores.svelte";
 
-  import Blanket from "$lib/Blanket.svelte";
+  import Blanket from "./Blanket.svelte";
   import { type Device, getMidiDevices } from "$lib/midi";
   import { Switch } from "@skeletonlabs/skeleton-svelte";
-  import { midiNumberToNoteName } from "./chords";
+  import { midiNumberToNoteName } from "../chords";
 
   let {
     open = $bindable(),
@@ -71,20 +71,6 @@
           {/each}
         </select>
       </label>
-    </div>
-  </div>
-
-  <div class="flex flex-col">
-    <h3 class="font-bold">Miscellaneous</h3>
-    <div class="flex items-center justify-between gap-4">
-      <label class="label cursor-pointer select-none" for="chordNotationUsesSharps">
-        Use sharps instead of flats when notating chords (i.e., G♯ instead of A♭)
-      </label>
-      <Switch
-        ids={{ hiddenInput: "chordNotationUsesSharps" }}
-        checked={settings.current.chordNotationUsesSharps}
-        onCheckedChange={(e) => (settings.current.chordNotationUsesSharps = e.checked)}
-      />
     </div>
   </div>
 

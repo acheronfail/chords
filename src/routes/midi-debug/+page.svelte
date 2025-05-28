@@ -2,8 +2,8 @@
   import { Switch } from "@skeletonlabs/skeleton-svelte";
 
   import { chordsByNotes, createChordKey, midiNumberToNoteName } from "$lib/chords";
-  import { settings as s } from "$lib/stores.svelte";
-  import PianoRoll from "$lib/PianoRoll.svelte";
+  import PianoRoll from "$lib/components/PianoRoll.svelte";
+  import { settings as s, settings } from "$lib/stores.svelte";
   import { getPressedKeys } from "$lib/context-midi";
 
   let pressedKeys = getPressedKeys();
@@ -33,6 +33,11 @@
     <table class="table">
       <tbody>
         <tr>
+          <th scope="row" class="text-surface-300" colspan="2">
+            <span class="text-md font-bold underline">Options</span>
+          </th>
+        </tr>
+        <tr>
           <th scope="row">
             <label for="showNoteNames" class="label cursor-pointer">Show Note Names?</label>
           </th>
@@ -43,6 +48,32 @@
               onCheckedChange={() => (showNames = !showNames)}
             />
           </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <label
+              for="chordNotationUsesSharps"
+              class="label cursor-pointer"
+              class:text-surface-300={!showNames}
+              class:line-through={!showNames}
+            >
+              Sharps instead of flats?
+            </label>
+          </th>
+          <td class="!text-right">
+            <Switch
+              ids={{ hiddenInput: "chordNotationUsesSharps" }}
+              disabled={!showNames}
+              checked={settings.current.chordNotationUsesSharps}
+              onCheckedChange={(e) => (settings.current.chordNotationUsesSharps = e.checked)}
+            />
+          </td>
+        </tr>
+
+        <tr>
+          <th scope="row" class="text-surface-300" colspan="2">
+            <span class="text-md font-bold underline">Info</span>
+          </th>
         </tr>
         <tr>
           <th scope="row" class="text-surface-300">Pressed Keys</th>

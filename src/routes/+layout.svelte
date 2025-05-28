@@ -5,6 +5,8 @@
   import { getMidiDevice } from "$lib/midi";
   import { cachedSettings } from "$lib/stores.svelte";
   import Header from "./Header.svelte";
+  import { fade } from "svelte/transition";
+  import { page } from "$app/state";
 
   initPressedKeys();
 
@@ -59,8 +61,10 @@
   });
 </script>
 
-<Header />
+<div class="flex h-screen flex-col">
+  <Header classes="" />
 
-<main>
-  {@render children()}
-</main>
+  <main class="relative grow">
+    {@render children()}
+  </main>
+</div>

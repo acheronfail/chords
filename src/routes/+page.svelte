@@ -1,8 +1,10 @@
 <script lang="ts">
   import { PianoIcon, TriangleAlertIcon, WrenchIcon, type IconProps } from "@lucide/svelte";
-  import { routes } from "../lib/routes";
   import type { Component } from "svelte";
-  import { cachedSettings } from "../lib/stores.svelte";
+  import { fade } from "svelte/transition";
+
+  import { routes } from "$lib/routes";
+  import { cachedSettings } from "$lib/stores.svelte";
 
   interface CardProps {
     href: string;
@@ -66,7 +68,7 @@
 {/snippet}
 
 {#if cachedSettings.current.midiDeviceId === null}
-  <div class="p-4">
+  <div transition:fade class="p-4">
     <div
       class="card preset-outlined-warning-500 grid grid-cols-1 items-center gap-4 p-4 lg:grid-cols-[auto_1fr_auto]"
     >

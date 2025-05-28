@@ -6,6 +6,7 @@
   import { Chord, chordsByNotes, createChordKey } from "$lib/chords";
   import { onMount } from "svelte";
   import LeadSheetSettings from "./LeadSheetSettings.svelte";
+  import { fade } from "svelte/transition";
 
   let pressedKeys = getPressedKeys();
   let chordsToPlay = $state<Chord[]>([]);
@@ -14,6 +15,7 @@
   type Result = "missed" | "correct" | undefined;
   let chordResults = $state<Result[]>([]);
   let currentChordIndex = $state(0);
+  let settingsOpen = $state(true);
 
   let chordKey = $derived(createChordKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
@@ -98,7 +100,7 @@
 
   // check if complete
   $effect(() => {
-    if (currentChordIndex === chordsToPlay.length) {
+    if (!settingsOpen && currentChordIndex === chordsToPlay.length) {
       // TODO: pop up modal or something with stats
       console.log("complete!");
     }
@@ -116,74 +118,79 @@
     }
   });
 
-  const onStart = () => (timerStopped = false);
+  const onStart = () => {
+    timerStopped = false;
+    settingsOpen = false;
+  };
 </script>
 
-<LeadSheetSettings bind:chordsToPlay bind:autoContinue bind:timerDuration {onStart} />
-
-<div class="flex flex-col gap-4">
-  <div
-    use:autoAnimate={{ duration: 100 }}
-    ontransitionstart={() => transitionCounter++}
-    ontransitionend={() => transitionCounter--}
-    class="m-auto flex h-[200px] w-2/3 flex-row items-center justify-between gap-10"
-  >
-    {#each carouselItems as index (index)}
-      <div class="min-w-[10em] text-center">
-        <div
-          class="flex items-center justify-center whitespace-nowrap transition-all duration-100"
-          class:text-error-500={chordResults[index] === "missed"}
-          class:text-success-500={chordResults[index] === "correct"}
-          class:text-surface-500={index > currentChordIndex}
-          class:text-4xl={index === currentChordIndex}
-        >
-          {#if chordsToPlay[index]}
-            {chordsToPlay[index].shortName({ sharps: Math.random() < 0.5 })}
-          {:else if index === chordsToPlay.length}
-            🎉
-          {/if}
+{#if settingsOpen}
+  <LeadSheetSettings bind:chordsToPlay bind:autoContinue bind:timerDuration {onStart} />
+{:else}
+  <div class="flex flex-col gap-4">
+    <div
+      use:autoAnimate={{ duration: 100 }}
+      ontransitionstart={() => transitionCounter++}
+      ontransitionend={() => transitionCounter--}
+      class="m-auto flex h-[200px] w-2/3 flex-row items-center justify-between gap-10"
+    >
+      {#each carouselItems as index (index)}
+        <div class="min-w-[10em] text-center">
+          <div
+            class="flex items-center justify-center font-bold whitespace-nowrap transition-all duration-100"
+            class:text-error-500={chordResults[index] === "missed"}
+            class:text-success-500={chordResults[index] === "correct"}
+            class:text-surface-500={index > currentChordIndex}
+            class:text-4xl={index === currentChordIndex}
+          >
+            {#if chordsToPlay[index]}
+              {chordsToPlay[index].shortName({ sharps: Math.random() < 0.5 })}
+            {:else if index === chordsToPlay.length}
+              🎉
+            {/if}
+          </div>
         </div>
-      </div>
-    {/each}
-  </div>
-
-  <div class="flex items-center justify-center">
-    {#if chordResults[currentChordIndex] === "correct"}
-      Nice work! Press any note to continue!
-    {:else if chordResults[currentChordIndex] === "missed"}
-      Ahh, better luck next time! Press any note to continue!
-    {:else if currentChordIndex === chordsToPlay.length}
-      Complete!
-    {:else}
-      Play this chord...
-    {/if}
-  </div>
-
-  <div class="m-auto flex w-2/3 flex-col gap-4 p-8 text-center">
-    <div>
-      <span class="text-success-500">
-        {Array.from(chordResults.values().filter((x) => x === "correct")).length}
-      </span>
-      <span class="text-surface-500">
-        / {chordsToPlay.length}
-      </span>
+      {/each}
     </div>
 
-    <label class="label flex flex-row items-center gap-2 whitespace-nowrap">
-      Time remaining:
-      <progress
-        class="progress [&::-webkit-progress-value]:bg-error-500"
-        value={timerStopped ? 0 : timerDuration - timerElapsed}
-        max={timerDuration}
-      ></progress>
-    </label>
+    <div class="flex items-center justify-center">
+      {#if chordResults[currentChordIndex] === "correct"}
+        Nice work! Press any note to continue!
+      {:else if chordResults[currentChordIndex] === "missed"}
+        Ahh, better luck next time! Press any note to continue!
+      {:else if currentChordIndex === chordsToPlay.length}
+        Complete!
+      {:else}
+        Play this chord...
+      {/if}
+    </div>
 
-    <Progress
-      value={currentChordIndex}
-      max={chordsToPlay.length}
-      meterBg={currentChordIndex === chordsToPlay.length ? "bg-success-500" : "bg-primary-500"}
-    >
-      Progress: {((currentChordIndex / chordsToPlay.length) * 100).toFixed(0)}%
-    </Progress>
+    <div class="m-auto flex w-2/3 flex-col gap-4 p-8 text-center">
+      <div>
+        <span class="text-success-500">
+          {Array.from(chordResults.values().filter((x) => x === "correct")).length}
+        </span>
+        <span class="text-surface-500">
+          / {chordsToPlay.length}
+        </span>
+      </div>
+
+      <label class="label flex flex-row items-center gap-2 whitespace-nowrap">
+        Time remaining:
+        <progress
+          class="progress [&::-webkit-progress-value]:bg-error-500 [&::-moz-progress-bar]:bg-error-500"
+          value={timerStopped ? 0 : timerDuration - timerElapsed}
+          max={timerDuration}
+        ></progress>
+      </label>
+
+      <Progress
+        value={currentChordIndex}
+        max={chordsToPlay.length}
+        meterBg={currentChordIndex === chordsToPlay.length ? "bg-success-500" : "bg-primary-500"}
+      >
+        Progress: {((currentChordIndex / chordsToPlay.length) * 100).toFixed(0)}%
+      </Progress>
+    </div>
   </div>
-</div>
+{/if}
