@@ -30,13 +30,16 @@
 
   let elapsed = $state(0);
   let duration = $state(5_000);
+  let timerStopped = $state(false);
   onMount(() => {
     let last_time = performance.now();
 
     let frame = requestAnimationFrame(function update(time) {
       frame = requestAnimationFrame(update);
 
-      elapsed += Math.min(time - last_time, duration - elapsed);
+      if (!timerStopped) {
+        elapsed += Math.min(time - last_time, duration - elapsed);
+      }
       last_time = time;
     });
 
@@ -57,12 +60,15 @@
   const next = () => {
     currentChordIndex = Math.min(chordsToPlay.length, currentChordIndex + 1);
     elapsed = 0;
+    timerStopped = currentChordIndex === chordsToPlay.length;
   };
 
   // check if chord matches
   $effect(() => {
     if (chordMatches) {
       chordResults[currentChordIndex] = "correct";
+      elapsed = 0;
+      timerStopped = true;
     }
   });
 
@@ -127,7 +133,7 @@
           class:text-4xl={index === currentChordIndex}
         >
           {#if chordsToPlay[index]}
-            {chordsToPlay[index].shortName()}
+            {chordsToPlay[index].shortName({ sharps: Math.random() < 0.5 })}
           {:else if index === chordsToPlay.length}
             🎉
           {/if}
@@ -149,16 +155,29 @@
   </div>
 
   <div class="m-auto flex w-2/3 flex-col gap-4 p-8 text-center">
+    <div>
+      <span class="text-success-500">
+        {Array.from(chordResults.values().filter((x) => x === "correct")).length}
+      </span>
+      <span class="text-surface-500">
+        / {chordsToPlay.length}
+      </span>
+    </div>
+
     <label class="label flex flex-row items-center gap-2 whitespace-nowrap">
       Time remaining:
       <progress
         class="progress [&::-webkit-progress-value]:bg-error-500"
-        value={duration - elapsed}
+        value={timerStopped ? 0 : duration - elapsed}
         max={duration}
       ></progress>
     </label>
 
-    <Progress value={currentChordIndex} max={chordsToPlay.length} meterBg="bg-primary-500">
+    <Progress
+      value={currentChordIndex}
+      max={chordsToPlay.length}
+      meterBg={currentChordIndex === chordsToPlay.length ? "bg-success-500" : "bg-primary-500"}
+    >
       Progress: {((currentChordIndex / chordsToPlay.length) * 100).toFixed(0)}%
     </Progress>
   </div>
