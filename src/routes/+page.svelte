@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { PianoIcon, WrenchIcon, type IconProps } from "@lucide/svelte";
+  import { PianoIcon, TriangleAlertIcon, WrenchIcon, type IconProps } from "@lucide/svelte";
   import { routes } from "../lib/routes";
   import type { Component } from "svelte";
+  import { cachedSettings } from "../lib/stores.svelte";
 
   interface CardProps {
     href: string;
@@ -63,6 +64,20 @@
     {/if}
   </a>
 {/snippet}
+
+{#if cachedSettings.current.midiDeviceId === null}
+  <div class="p-4">
+    <div
+      class="card preset-outlined-warning-500 grid grid-cols-1 items-center gap-4 p-4 lg:grid-cols-[auto_1fr_auto]"
+    >
+      <TriangleAlertIcon />
+      <div>
+        <p class="font-bold">No MIDI Device configured!</p>
+        <p class="text-xs opacity-60">Please open the settings and choose a MIDI device</p>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <div class="grid w-full grid-cols-2 gap-4 p-4">
   {#each cards as props}

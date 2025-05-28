@@ -37,8 +37,15 @@
     let cleanedUp = false;
 
     if (cachedSettings.current.midiDeviceId) {
-      getMidiDevice(cachedSettings.current.midiDeviceId, (input) => {
+      getMidiDevice(cachedSettings.current.midiDeviceId, (err, input) => {
         if (cleanedUp) return;
+
+        if (err || !input) {
+          console.error(err);
+          cachedSettings.current.midiDeviceId = null;
+          return;
+        }
+
         const handler = createMessageHandler(input);
         input.addEventListener("midimessage", handler);
         unsubscribe = () => input.removeEventListener("midimessage", handler);

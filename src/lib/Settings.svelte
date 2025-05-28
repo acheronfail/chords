@@ -33,6 +33,7 @@
     <label for="midiDeviceId" class="label">Selected Device</label>
     <div class="flex items-center gap-2">
       <select id="midiDeviceId" class="select" bind:value={cachedSettings.current.midiDeviceId}>
+        <option disabled value={null}>- please choose a device -</option>
         {#each midiDevices as device}
           <option value={device.id}>{device.name}</option>
         {/each}

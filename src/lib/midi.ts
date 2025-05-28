@@ -13,12 +13,17 @@ export async function getMidiDevices(): Promise<Device[]> {
   return devices;
 }
 
-export async function getMidiDevice(id: string, callback: (input: MIDIInput) => void) {
+export async function getMidiDevice(
+  id: string,
+  callback: (err: Error | null, input: MIDIInput | null) => void,
+) {
   const access = await navigator.requestMIDIAccess();
   for (const input of access.inputs.values()) {
     if (input.id === id) {
-      callback(input);
-      break;
+      callback(null, input);
+      return;
     }
   }
+
+  callback(new Error(`MIDI device with id ${id} not found`), null);
 }

@@ -3,21 +3,16 @@
   import autoAnimate from "@formkit/auto-animate";
 
   import { getPressedKeys, isMidiShortcut } from "$lib/context-midi";
-  import { ChordKind, chordsByKind, chordsByNotes, createChordKey } from "$lib/chords";
-  import { shuffle } from "$lib/array";
+  import { Chord, chordsByNotes, createChordKey } from "$lib/chords";
   import { onMount } from "svelte";
-
-  // TODO: settings:
-  //   - different chord types
-  //   - shuffle sharps/flats notation
-  //   - automatically move to the next chord
-
-  const chordsToPlay = shuffle(chordsByKind(ChordKind.Major));
+  import LeadSheetSettings from "./LeadSheetSettings.svelte";
 
   let pressedKeys = getPressedKeys();
+  let chordsToPlay = $state<Chord[]>([]);
+  let autoContinue = $state(false);
 
   type Result = "missed" | "correct" | undefined;
-  let chordResults = $state<Result[]>(new Array(chordsToPlay.length));
+  let chordResults = $state<Result[]>([]);
   let currentChordIndex = $state(0);
 
   let chordKey = $derived(createChordKey(pressedKeys));
@@ -28,9 +23,9 @@
   );
   let allKeysOff = $derived(pressedKeys.size === 0);
 
-  let elapsed = $state(0);
-  let duration = $state(5_000);
-  let timerStopped = $state(false);
+  let timerElapsed = $state(0);
+  let timerDuration = $state(5_000);
+  let timerStopped = $state(true);
   onMount(() => {
     let last_time = performance.now();
 
@@ -38,7 +33,7 @@
       frame = requestAnimationFrame(update);
 
       if (!timerStopped) {
-        elapsed += Math.min(time - last_time, duration - elapsed);
+        timerElapsed += Math.min(time - last_time, timerDuration - timerElapsed);
       }
       last_time = time;
     });
@@ -59,7 +54,7 @@
 
   const next = () => {
     currentChordIndex = Math.min(chordsToPlay.length, currentChordIndex + 1);
-    elapsed = 0;
+    timerElapsed = 0;
     timerStopped = currentChordIndex === chordsToPlay.length;
   };
 
@@ -67,15 +62,21 @@
   $effect(() => {
     if (chordMatches) {
       chordResults[currentChordIndex] = "correct";
-      elapsed = 0;
+      timerElapsed = 0;
       timerStopped = true;
+      if (autoContinue) {
+        next();
+      }
     }
   });
 
   // check if timed out
   $effect(() => {
-    if (elapsed >= duration) {
+    if (timerElapsed >= timerDuration) {
       chordResults[currentChordIndex] = "missed";
+      if (autoContinue) {
+        next();
+      }
     }
   });
 
@@ -114,7 +115,11 @@
       next();
     }
   });
+
+  const onStart = () => (timerStopped = false);
 </script>
+
+<LeadSheetSettings bind:chordsToPlay bind:autoContinue bind:timerDuration {onStart} />
 
 <div class="flex flex-col gap-4">
   <div
@@ -148,7 +153,7 @@
     {:else if chordResults[currentChordIndex] === "missed"}
       Ahh, better luck next time! Press any note to continue!
     {:else if currentChordIndex === chordsToPlay.length}
-      🎉🎉🎉 You completed the exercise! 🎉🎉🎉
+      Complete!
     {:else}
       Play this chord...
     {/if}
@@ -168,8 +173,8 @@
       Time remaining:
       <progress
         class="progress [&::-webkit-progress-value]:bg-error-500"
-        value={timerStopped ? 0 : duration - elapsed}
-        max={duration}
+        value={timerStopped ? 0 : timerDuration - timerElapsed}
+        max={timerDuration}
       ></progress>
     </label>
 

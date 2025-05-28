@@ -26,7 +26,7 @@ export enum ChordKind {
   Major6,
 }
 
-const ChordNames: Record<ChordKind, [string, string]> = {
+export const ChordNames: Record<ChordKind, [string, string]> = {
   [ChordKind.Major]: ["Major", ""],
   [ChordKind.Minor]: ["Minor", "m"],
   [ChordKind.Diminished]: ["Diminished", "dim"],
@@ -63,7 +63,7 @@ export function midiNumberToNoteName(
   return `${note}${number}`;
 }
 
-class Chord {
+export class Chord {
   constructor(
     private readonly root: number,
     public readonly notes: number[],
@@ -84,8 +84,9 @@ class Chord {
 export const chordsByName = new SvelteMap<string, Chord>();
 export const chordsByNotes = new SvelteMap<ChordNotesKey, Chord[]>();
 
-export function chordsByKind(kind: ChordKind): Chord[] {
-  return Array.from(chordsByName.values()).filter((chord) => chord.kind === kind);
+export function chordsByKinds(kinds: Iterable<ChordKind>): Chord[] {
+  const all = Array.from(kinds);
+  return Array.from(chordsByName.values()).filter((chord) => all.includes(chord.kind));
 }
 
 const add = (chord: Chord) => {

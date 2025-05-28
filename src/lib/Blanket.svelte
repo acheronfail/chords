@@ -1,15 +1,22 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+  import { slide } from "svelte/transition";
   import { AppBar } from "@skeletonlabs/skeleton-svelte";
   import { X } from "@lucide/svelte";
-  import type { Snippet } from "svelte";
-  import { fade, slide } from "svelte/transition";
 
   let {
     open = $bindable(),
     title,
     classes = "",
     children,
-  }: { open: boolean; title: string; classes?: string; children: Snippet } = $props();
+    onClose = () => (open = false),
+  }: {
+    open: boolean;
+    onClose?: () => void;
+    title: string;
+    classes?: string;
+    children: Snippet;
+  } = $props();
 </script>
 
 {#if open}
@@ -20,11 +27,7 @@
           <h1 class="text-xl font-bold underline">{title}</h1>
         {/snippet}
         {#snippet trail()}
-          <button
-            type="button"
-            class="btn-icon preset-outlined-surface-500"
-            onclick={() => (open = false)}
-          >
+          <button type="button" class="btn-icon preset-outlined-surface-500" onclick={onClose}>
             <X size={24} />
           </button>
         {/snippet}
