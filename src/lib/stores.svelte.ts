@@ -5,7 +5,7 @@ const C4 = 60;
 const settingsDefaults = () => ({
   pianoRollMinKey: C4 - 24,
   pianoRollMaxKey: C4 + 24,
-  chordNotationUsesSharps: false,
+  chordNotationUsesSharps: true,
 });
 
 export function settingsReset() {

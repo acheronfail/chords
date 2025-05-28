@@ -70,7 +70,7 @@
           : "fill-surface-950"}
 
       <text x={x + width / 2} y={textY} font-size={textSize} class={textFill} text-anchor="middle">
-        {midiNumberToNoteName(key.key)}
+        {midiNumberToNoteName(key.key, { sharps: settings.current.chordNotationUsesSharps })}
       </text>
     {/if}
   </g>
