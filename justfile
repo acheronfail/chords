@@ -9,5 +9,5 @@ test:
   npm run checks
   npm run build
 
-bump +type:
+bump +type: test
   npm version "{{ type }}" --message "v%s" --force
