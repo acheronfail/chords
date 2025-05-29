@@ -3,10 +3,6 @@
   import { midiNumberToNoteName, type Chord } from "$lib/chords";
   import type { ChordOptions, Result } from "./types";
 
-  // TODO: support bass clef
-  // TODO: support key signatures (`stave.setKeySignature`; but will have to adjust
-  // the note names to be in the right key)
-
   let {
     currentChordIndex,
     chordsToPlay,

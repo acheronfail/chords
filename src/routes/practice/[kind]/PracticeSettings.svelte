@@ -4,8 +4,6 @@
   import { Chord, ChordKind, ChordNames, chordsByKinds } from "$lib/chords";
   import { shuffle } from "$lib/array";
 
-  // TODO: endless mode
-
   let {
     open = $bindable(true),
     chordCount = 12,
