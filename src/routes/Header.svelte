@@ -13,9 +13,11 @@
   let title = $derived.by(() => {
     switch (page.url.pathname) {
       case routes.home:
-        return "Home";
+        return "Chords";
       case routes.leadSheet:
         return "Practice - Lead Sheet";
+      case routes.chordRecognition:
+        return "Practice - Chord Recognition";
       case routes.midiDebug:
         return "MIDI Debugger";
       default: {

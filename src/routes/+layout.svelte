@@ -5,8 +5,6 @@
   import { getMidiDevice } from "$lib/midi";
   import { cachedSettings } from "$lib/stores.svelte";
   import Header from "./Header.svelte";
-  import { fade } from "svelte/transition";
-  import { page } from "$app/state";
 
   initPressedKeys();
 

@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { PianoIcon, TriangleAlertIcon, WrenchIcon, type IconProps } from "@lucide/svelte";
+  import {
+    Music4Icon,
+    PianoIcon,
+    TriangleAlertIcon,
+    WrenchIcon,
+    type IconProps,
+  } from "@lucide/svelte";
   import type { Component } from "svelte";
   import { fade } from "svelte/transition";
 
@@ -20,10 +26,17 @@
     {
       href: routes.leadSheet,
       icon: PianoIcon,
-      kind: "Practice",
+      kind: "Practice Chords",
       title: "Lead Sheet",
       description:
         "Practice your ability to recognise and play chords from Chord Symbols; things like Cmaj7, Dm7, G7, etc.",
+    },
+    {
+      href: routes.chordRecognition,
+      icon: Music4Icon,
+      kind: "Practice Chords",
+      title: "Chord Recognition",
+      description: "Practice your ability to recognise and play chords when notated on a staff.",
     },
     {
       href: routes.midiDebug,
