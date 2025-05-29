@@ -18,6 +18,9 @@ const config = {
       precompress: false,
       strict: true,
     }),
+    prerender: {
+      entries: ["/", "/midi-debug", "/practice/symbols", "/practice/notes"],
+    },
   },
 };
 
