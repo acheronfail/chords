@@ -149,7 +149,7 @@
       {:else if currentChordIndex === chordsToPlay.length}
         Complete!
       {:else}
-        Play this chord...
+        <span class="text-secondary-300 font-bold">Play this chord...</span>
       {/if}
     </div>
 

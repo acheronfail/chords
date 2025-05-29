@@ -38,6 +38,7 @@
         class:text-error-500={chordResults[index] === "missed"}
         class:text-success-500={chordResults[index] === "correct"}
         class:text-surface-500={index > currentChordIndex}
+        class:text-secondary-300={index === currentChordIndex && !chordResults[index]}
         class:text-4xl={index === currentChordIndex}
       >
         {#if chordsToPlay[index]}

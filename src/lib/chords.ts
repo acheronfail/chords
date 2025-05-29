@@ -86,12 +86,6 @@ export class Chord {
   ) {}
 
   private getNoteNames({ sharps }: NoteNameOptions = { sharps: false }): string[] {
-    // HACK: a work around for making sure we don't generate invalid note names.
-    // This doesn't work for every case (and should fix this properly)...
-    if (this.intervals().includes(11)) {
-      return isMidiNumberBlackNote(this.root) ? NOTE_NAMES.flats : NOTE_NAMES.sharps;
-    }
-
     return sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
   }
 
