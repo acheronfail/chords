@@ -65,7 +65,7 @@ export function midiNumberToNoteName(
 
 export class Chord {
   constructor(
-    private readonly root: number,
+    public readonly root: number,
     public readonly notes: number[],
     public readonly kind: ChordKind,
   ) {}
@@ -78,6 +78,10 @@ export class Chord {
   shortName({ sharps }: NoteNameOptions = { sharps: false }): string {
     const names = sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
     return `${names[this.root]}${ChordNames[this.kind][1]}`;
+  }
+
+  firstInversion(): number[] {
+    return this.notes.map((n) => (n < this.root ? n + 12 : n));
   }
 }
 

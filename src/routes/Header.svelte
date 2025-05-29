@@ -32,7 +32,7 @@
 
 <Settings bind:open={settingsOpen} />
 
-<AppBar {classes}>
+<AppBar classes="sticky top-0 z-100 {classes}">
   {#snippet lead()}
     {#if page.url.pathname !== routes.home}
       <a href={base} class="btn preset-outlined-surface-500">

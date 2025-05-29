@@ -6,7 +6,7 @@
   import { Chord, chordsByNotes, createChordKey } from "$lib/chords";
   import { onMount } from "svelte";
   import LeadSheetSettings from "./LeadSheetSettings.svelte";
-  import { fade } from "svelte/transition";
+  import PianoRoll from "../../lib/components/PianoRoll.svelte";
 
   let pressedKeys = getPressedKeys();
   let chordsToPlay = $state<Chord[]>([]);
@@ -16,6 +16,7 @@
   let chordResults = $state<Result[]>([]);
   let currentChordIndex = $state(0);
   let settingsOpen = $state(true);
+  let showPianoRoll = $state(true);
 
   let chordKey = $derived(createChordKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
@@ -26,12 +27,16 @@
   let allKeysOff = $derived(pressedKeys.size === 0);
 
   let timerElapsed = $state(0);
-  let timerDuration = $state(5_000);
+  let timerDuration = $state<number | null>(5_000);
   let timerStopped = $state(true);
   onMount(() => {
     let last_time = performance.now();
 
     let frame = requestAnimationFrame(function update(time) {
+      if (timerDuration === null) {
+        return;
+      }
+
       frame = requestAnimationFrame(update);
 
       if (!timerStopped) {
@@ -62,7 +67,7 @@
 
   // check if chord matches
   $effect(() => {
-    if (chordMatches) {
+    if (chordResults[currentChordIndex] === undefined && chordMatches) {
       chordResults[currentChordIndex] = "correct";
       timerElapsed = 0;
       timerStopped = true;
@@ -74,7 +79,7 @@
 
   // check if timed out
   $effect(() => {
-    if (timerElapsed >= timerDuration) {
+    if (timerDuration !== null && timerElapsed >= timerDuration) {
       chordResults[currentChordIndex] = "missed";
       if (autoContinue) {
         next();
@@ -85,7 +90,9 @@
   // check if able to go next
   let ableToGoNext = $state(false);
   $effect(() => {
-    if (chordResults[currentChordIndex] !== undefined && allKeysOff) {
+    if (chordResults[currentChordIndex] === "correct" && allKeysOff) {
+      ableToGoNext = true;
+    } else if (chordResults[currentChordIndex] === "missed" && chordMatches) {
       ableToGoNext = true;
     }
   });
@@ -125,7 +132,13 @@
 </script>
 
 {#if settingsOpen}
-  <LeadSheetSettings bind:chordsToPlay bind:autoContinue bind:timerDuration {onStart} />
+  <LeadSheetSettings
+    bind:chordsToPlay
+    bind:autoContinue
+    bind:timerDuration
+    bind:showPianoRoll
+    {onStart}
+  />
 {:else}
   <div class="flex flex-col gap-4">
     <div
@@ -157,7 +170,7 @@
       {#if chordResults[currentChordIndex] === "correct"}
         Nice work! Press any note to continue!
       {:else if chordResults[currentChordIndex] === "missed"}
-        Ahh, better luck next time! Press any note to continue!
+        Ahh, better luck next time! Play the chord to continue.
       {:else if currentChordIndex === chordsToPlay.length}
         Complete!
       {:else}
@@ -175,14 +188,16 @@
         </span>
       </div>
 
-      <label class="label flex flex-row items-center gap-2 whitespace-nowrap">
-        Time remaining:
-        <progress
-          class="progress [&::-webkit-progress-value]:bg-error-500 [&::-moz-progress-bar]:bg-error-500"
-          value={timerStopped ? 0 : timerDuration - timerElapsed}
-          max={timerDuration}
-        ></progress>
-      </label>
+      {#if timerDuration !== null}
+        <label class="label flex flex-row items-center gap-2 whitespace-nowrap">
+          Time remaining:
+          <progress
+            class="progress [&::-webkit-progress-value]:bg-error-500 [&::-moz-progress-bar]:bg-error-500"
+            value={timerStopped ? 0 : timerDuration - timerElapsed}
+            max={timerDuration}
+          ></progress>
+        </label>
+      {/if}
 
       <Progress
         value={currentChordIndex}
@@ -192,5 +207,14 @@
         Progress: {((currentChordIndex / chordsToPlay.length) * 100).toFixed(0)}%
       </Progress>
     </div>
+
+    {#if showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}
+      <PianoRoll
+        highlightedKeys={new Set(chordsToPlay[currentChordIndex].firstInversion())}
+        pressedKeys={new Set(pressedKeys.values().map((x) => x % 24))}
+        minKey={0}
+        maxKey={24}
+      />
+    {/if}
   </div>
 {/if}
