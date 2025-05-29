@@ -166,15 +166,6 @@
     </div>
 
     <div class="m-auto flex w-2/3 flex-col gap-4 p-8 text-center">
-      <div>
-        <span class="text-success-500">
-          {Array.from(chordResults.values().filter((x) => x === "correct")).length}
-        </span>
-        <span class="text-surface-500">
-          / {chordsToPlay.length}
-        </span>
-      </div>
-
       {#if timerDuration !== null}
         <label class="label flex flex-row items-center gap-2 whitespace-nowrap">
           Time remaining:
@@ -193,6 +184,16 @@
       >
         Progress: {((currentChordIndex / chordsToPlay.length) * 100).toFixed(0)}%
       </Progress>
+
+      <div class="flex flex-row items-center justify-center gap-2 text-xs">
+        <span class="text-success-500">
+          {Array.from(chordResults.values().filter((x) => x === "correct")).length} correct
+        </span>
+        <span class="text-surface-500">|</span>
+        <span class="text-error-500">
+          {Array.from(chordResults.values().filter((x) => x === "missed")).length} missed
+        </span>
+      </div>
     </div>
 
     {#if showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}

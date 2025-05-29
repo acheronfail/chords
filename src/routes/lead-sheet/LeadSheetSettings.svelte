@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Blanket from "../../lib/components/Blanket.svelte";
   import { Chord, ChordKind, ChordNames, chordsByKinds } from "$lib/chords";
   import { Switch } from "@skeletonlabs/skeleton-svelte";
   import { SvelteSet } from "svelte/reactivity";
@@ -13,7 +12,7 @@
     chordsToPlay = $bindable([]),
     timerDuration = $bindable(5000),
     showPianoRoll = $bindable(false),
-    showPianoRollNotes = $bindable(false),
+    showPianoRollNotes = $bindable(true),
     onStart,
   }: {
     chordCount?: number;
@@ -26,7 +25,7 @@
   } = $props();
 
   let kinds = new SvelteSet<ChordKind>([ChordKind.Major]);
-  let timerEnabled = $state(false);
+  let timerEnabled = $state(true);
 
   let countValid = $derived(chordCount >= 5);
   let timerValid = $derived(timerDuration !== null ? timerDuration >= 100 : true);
