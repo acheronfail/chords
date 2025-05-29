@@ -15,16 +15,21 @@
     chordOptions: ChordOptions[];
   } = $props();
 
+  // TODO: show upcoming (and past) chords
   $effect(() => {
-    const notes = chordsToPlay[currentChordIndex].firstInversion();
-    const noteNames = notes.map((n) =>
-      midiNumberToNoteName(n + 60, {
-        sharps: chordOptions[currentChordIndex].sharps,
-        withNumber: true,
-        ascii: true,
+    const indices = [currentChordIndex];
+    updateChord(
+      indices.map((index) => {
+        const notes = chordsToPlay[index].firstInversion();
+        return notes.map((n) =>
+          midiNumberToNoteName(n + 60, {
+            sharps: chordOptions[index].sharps,
+            withNumber: true,
+            ascii: true,
+          }),
+        );
       }),
     );
-    updateChord(noteNames);
   });
 
   // easy way for dark mode is to invert, but could look at
@@ -34,7 +39,7 @@
   // for a good example of how to build bars
   let div: HTMLDivElement;
 
-  function updateChord(noteNames: string[]) {
+  function updateChord(chordNotes: string[][]) {
     const box = div.getBoundingClientRect();
     div.innerHTML = "";
 
@@ -45,7 +50,9 @@
 
     system
       .addStave({
-        voices: [score.voice(score.notes(`(${noteNames.join(" ")})/2`, { stem: "up" }))],
+        voices: chordNotes.map((notes) =>
+          score.voice(score.notes(`(${notes.join(" ")})/2`, { stem: "up" })),
+        ),
       })
       .addClef("treble");
 
