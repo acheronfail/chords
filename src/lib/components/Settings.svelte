@@ -3,7 +3,6 @@
 
   import Blanket from "./Blanket.svelte";
   import { type Device, getMidiDevices } from "$lib/midi";
-  import { Switch } from "@skeletonlabs/skeleton-svelte";
   import { midiNumberToNoteName } from "../chords";
 
   let {
@@ -51,11 +50,7 @@
         <span class="label-text">First key on piano roll</span>
         <select id="pianoRollMinKey" class="select" bind:value={settings.current.pianoRollMinKey}>
           {#each availableKeys.slice(0, settings.current.pianoRollMaxKey - 12 + 1) as key}
-            <option value={key}
-              >{midiNumberToNoteName(key, {
-                sharps: settings.current.chordNotationUsesSharps,
-              })}</option
-            >
+            <option value={key}>{midiNumberToNoteName(key, { sharps: true })}</option>
           {/each}
         </select>
       </label>
@@ -63,11 +58,7 @@
         <span class="label-text">Last key on piano roll</span>
         <select id="pianoRollMaxKey" class="select" bind:value={settings.current.pianoRollMaxKey}>
           {#each availableKeys.slice(settings.current.pianoRollMinKey + 12) as key}
-            <option value={key}
-              >{midiNumberToNoteName(key, {
-                sharps: settings.current.chordNotationUsesSharps,
-              })}</option
-            >
+            <option value={key}>{midiNumberToNoteName(key, { sharps: true })}</option>
           {/each}
         </select>
       </label>
