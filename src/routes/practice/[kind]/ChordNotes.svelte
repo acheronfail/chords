@@ -97,8 +97,6 @@
       .map((notes) => (notes ? `(${notes.join(" ")})/${noteDuration}` : `B4/${noteDuration}/r`))
       .join(", ");
 
-    console.log({ noteSpec, timeSpec });
-
     // create notes
     const notes = score.notes(noteSpec, { stem: "up" });
     notes.forEach((note, i) => note.setStyle(noteStyle(indices[i])));
