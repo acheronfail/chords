@@ -33,28 +33,26 @@
   // see https://github.com/0xfe/vexflow/blob/master/tests/bach_tests.ts
   // for a good example of how to build bars
   let div: HTMLDivElement;
-  let f: Factory;
-  let sys: System;
-  let score: EasyScore;
 
   function updateChord(noteNames: string[]) {
     const box = div.getBoundingClientRect();
+    div.innerHTML = "";
 
-    f = new Factory({ renderer: { elementId: div.id, width: box.width, height: 150 } });
-    sys = f.System({ width: box.width - box.left - 40 });
-    score = f.EasyScore();
+    const factory = new Factory({ renderer: { elementId: div.id, width: box.width, height: 150 } });
+    const system = factory.System({ width: box.width - box.left - 40 });
+    const score = factory.EasyScore();
     score.set({ time: "2/4" });
 
-    sys
+    system
       .addStave({
         voices: [score.voice(score.notes(`(${noteNames.join(" ")})/2`, { stem: "up" }))],
       })
       .addClef("treble");
 
-    sys.addConnector("singleRight");
-    sys.addConnector("singleLeft");
+    system.addConnector("singleRight");
+    system.addConnector("singleLeft");
 
-    f.draw();
+    factory.draw();
   }
 </script>
 
