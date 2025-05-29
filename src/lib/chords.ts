@@ -101,12 +101,12 @@ export class Chord {
 
   /** list of intervals starting from root */
   intervals(): number[] {
-    return this.rootPosition().map((n) => n - this.root);
+    return this.inversion(0).map((n) => n - this.root);
   }
 
-  /** note numbers in root position (starting from first octave) */
-  rootPosition(): number[] {
-    return this.notes.slice();
+  /** return notes (starting from lowest midi octave) in a particular inversion */
+  inversion(nth: number): number[] {
+    return [...this.notes.slice(nth), ...this.notes.slice(0, nth).map((n) => n + 12)];
   }
 }
 
@@ -119,7 +119,7 @@ export function chordsByKinds(kinds: Iterable<ChordKind>): Chord[] {
 }
 
 const add = (chord: Chord) => {
-  const mapKey = createChordMapKey(chord.rootPosition());
+  const mapKey = createChordMapKey(chord.inversion(0));
 
   chordsByName.set(chord.name(), chord);
   const bucket =

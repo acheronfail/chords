@@ -25,6 +25,7 @@
 
   let chordKey = $derived(createChordMapKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
+
   let chordMatches = $derived(
     possibleChords?.includes(chordsToPlay[currentChordIndex]) ??
       (pressedKeys.size > 0 ? false : undefined),
@@ -188,7 +189,7 @@
       <PianoRoll
         showSharps={chordOptions[currentChordIndex]?.sharps}
         showNames={showPianoRollNotes}
-        highlightedKeys={new Set(chordsToPlay[currentChordIndex].rootPosition())}
+        highlightedKeys={new Set(chordsToPlay[currentChordIndex].inversion(0))}
         pressedKeys={new Set(pressedKeys.values().map((x) => x % 24))}
         minKey={0}
         maxKey={24}

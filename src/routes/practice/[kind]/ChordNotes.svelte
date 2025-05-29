@@ -84,7 +84,7 @@
       // HACK: a work around for making sure we don't generate invalid note names.
       // This doesn't work for every case (and should fix this properly)...
       const has11Interval = chord.intervals().includes(11);
-      return chord.rootPosition().map((n) =>
+      return chord.inversion(0).map((n) =>
         midiNumberToNoteName(n + 60, {
           sharps: has11Interval ? !isMidiNumberBlackNote(chord.root) : chordOptions[index].sharps,
           withNumber: true,
