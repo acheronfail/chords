@@ -6,7 +6,8 @@
 - [x] create a chord quiz based on lead sheets (chord names)
 - [x] show piano roll in lead sheet practice when incorrect (or toggled)
 - [ ] save/restore lead sheet settings
-- [ ] create a chord quiz based on notation (treble / bass)
+- [ ] create a chord quiz based on notation (treble / bass) for sight reading
+- [ ] gamify the practice sessions (remove countdown progress, but have score logarithmically decreasing)
 - [ ] add "midi keyboard" shortcuts to move around the interface
 - [ ] add keyboard shortcuts to move around the interface
 - [ ] content for learning chords?
