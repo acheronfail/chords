@@ -10,17 +10,17 @@
   let {
     open = $bindable(true),
     chordCount = 12,
-    autoContinue = $bindable(false),
     chordsToPlay = $bindable([]),
     timerDuration = $bindable(5000),
     showPianoRoll = $bindable(false),
+    showPianoRollNotes = $bindable(false),
     onStart,
   }: {
-    autoContinue: boolean;
     chordCount?: number;
     chordsToPlay?: Chord[];
     open?: boolean;
     showPianoRoll?: boolean;
+    showPianoRollNotes?: boolean;
     timerDuration: number | null;
     onStart: () => void;
   } = $props();
@@ -140,13 +140,13 @@
     <h3 class="font-bold">Other Options</h3>
 
     <div class="flex items-center justify-between gap-4">
-      <label class="label cursor-pointer select-none" for="autoContinue">
-        Automatically continue to next chord
+      <label class="label cursor-pointer select-none" for="showPianoRollNotes">
+        Show Notes on Piano Roll
       </label>
       <Switch
-        ids={{ hiddenInput: "autoContinue" }}
-        checked={autoContinue}
-        onCheckedChange={(e) => (autoContinue = e.checked)}
+        ids={{ hiddenInput: "showPianoRollNotes" }}
+        checked={showPianoRollNotes}
+        onCheckedChange={(e) => (showPianoRollNotes = e.checked)}
       />
     </div>
 

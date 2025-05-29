@@ -47,20 +47,25 @@ const NOTE_NAMES = {
 
 export interface NoteNameOptions {
   sharps?: boolean;
+  withNumber?: boolean;
 }
 
 export function midiNumberToNoteName(
   n: number,
-  { sharps }: NoteNameOptions = { sharps: false },
+  { sharps, withNumber }: NoteNameOptions = {},
 ): string {
   if (n < 0 || n > 127) {
     return "?";
   }
 
   const names = sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
-  const note = names[n % 12];
+  const noteName = names[n % 12];
+  if (!withNumber) {
+    return noteName;
+  }
+
   const number = Math.floor(n / 12) - 1; // MIDI note numbers start at C-1 (MIDI number 0)
-  return `${note}${number}`;
+  return `${noteName}${number}`;
 }
 
 export class Chord {

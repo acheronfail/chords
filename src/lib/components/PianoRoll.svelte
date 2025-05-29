@@ -15,12 +15,14 @@
     pressedKeys,
     highlightedKeys = new Set<number>(),
     showNames = $bindable(false),
+    showSharps = true,
     minKey,
     maxKey,
   }: {
     pressedKeys: Set<number>;
     highlightedKeys?: Set<number>;
-    showNames?: boolean;
+    showNames?: boolean | "withNumbers";
+    showSharps?: boolean;
     minKey?: number;
     maxKey?: number;
   } = $props();
@@ -55,55 +57,20 @@
   let svgFactor = $derived(SVG_WIDTH / totalX);
   let svgHeight = $derived(KEY_HEIGHT_WHITE / totalX);
 
-  // record: isBlack -> isPressed -> isHighlighted
-  const colors = {
-    // black
-    true: {
-      // black, pressed
-      true: {
-        // black, pressed, highlighted
-        true: "fill-success-500",
-        // black, pressed, !highlighted
-        false: "fill-primary-500",
-      },
-      // black, !pressed
-      false: {
-        // black, !pressed, highlighted
-        true: "fill-secondary-500",
-        // black, !pressed, !highlighted
-        false: "fill-surface-950",
-      },
-    },
-    // !black
-    false: {
-      // !black, pressed
-      true: {
-        // !black, pressed, highlighted
-        true: "fill-success-500",
-        // !black, pressed, !highlighted
-        false: "fill-primary-500",
-      },
-      // !black, !pressed
-      false: {
-        // !black, !pressed, highlighted
-        true: "fill-secondary-500",
-        // !black, !pressed, !highlighted
-        false: "fill-surface-50",
-      },
-    },
-  };
-
   const getKeyFill = (key: Key) => {
-    // @ts-expect-error probably a better way to do this
-    return colors[key.isBlack][pressedKeys.has(key.key)][highlightedKeys.has(key.key)];
+    const isPressed = pressedKeys.has(key.key);
+    const isHighlighted = highlightedKeys.has(key.key);
+
+    if (isPressed && isHighlighted) return "fill-primary-300";
+    if (isPressed) return "fill-primary-500";
+    if (isHighlighted) return "fill-secondary-500";
+    if (key.isBlack) return "fill-surface-950";
+    return "fill-surface-50";
   };
 
   const getTextFill = (key: Key) => {
-    return pressedKeys.has(key.key)
-      ? "fill-surface-50"
-      : key.isBlack
-        ? "fill-surface-50"
-        : "fill-surface-950";
+    if (pressedKeys.has(key.key) || key.isBlack) return "fill-surface-50";
+    return "fill-surface-950";
   };
 </script>
 
@@ -126,7 +93,10 @@
         class={getTextFill(key)}
         text-anchor="middle"
       >
-        {midiNumberToNoteName(key.key, { sharps: settings.current.chordNotationUsesSharps })}
+        {midiNumberToNoteName(key.key, {
+          sharps: showSharps,
+          withNumber: showNames === "withNumbers",
+        })}
       </text>
     {/if}
   </g>

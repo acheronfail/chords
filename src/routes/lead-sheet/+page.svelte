@@ -10,13 +10,14 @@
 
   let pressedKeys = getPressedKeys();
   let chordsToPlay = $state<Chord[]>([]);
-  let autoContinue = $state(false);
+  let chordOptions = $derived(chordsToPlay.map(() => ({ sharps: Math.random() < 0.5 })));
 
   type Result = "missed" | "correct" | undefined;
   let chordResults = $state<Result[]>([]);
   let currentChordIndex = $state(0);
   let settingsOpen = $state(true);
-  let showPianoRoll = $state(true);
+  let showPianoRoll = $state(false);
+  let showPianoRollNotes = $state(true);
 
   let chordKey = $derived(createChordKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
@@ -24,7 +25,6 @@
     possibleChords?.includes(chordsToPlay[currentChordIndex]) ??
       (pressedKeys.size > 0 ? false : undefined),
   );
-  let allKeysOff = $derived(pressedKeys.size === 0);
 
   let timerElapsed = $state(0);
   let timerDuration = $state<number | null>(5_000);
@@ -71,9 +71,7 @@
       chordResults[currentChordIndex] = "correct";
       timerElapsed = 0;
       timerStopped = true;
-      if (autoContinue) {
-        next();
-      }
+      next();
     }
   });
 
@@ -81,18 +79,13 @@
   $effect(() => {
     if (timerDuration !== null && timerElapsed >= timerDuration) {
       chordResults[currentChordIndex] = "missed";
-      if (autoContinue) {
-        next();
-      }
     }
   });
 
   // check if able to go next
   let ableToGoNext = $state(false);
   $effect(() => {
-    if (chordResults[currentChordIndex] === "correct" && allKeysOff) {
-      ableToGoNext = true;
-    } else if (chordResults[currentChordIndex] === "missed" && chordMatches) {
+    if (chordResults[currentChordIndex] === "missed" && chordMatches) {
       ableToGoNext = true;
     }
   });
@@ -132,13 +125,7 @@
 </script>
 
 {#if settingsOpen}
-  <LeadSheetSettings
-    bind:chordsToPlay
-    bind:autoContinue
-    bind:timerDuration
-    bind:showPianoRoll
-    {onStart}
-  />
+  <LeadSheetSettings bind:chordsToPlay bind:timerDuration bind:showPianoRoll {onStart} />
 {:else}
   <div class="flex flex-col gap-4">
     <div
@@ -157,7 +144,7 @@
             class:text-4xl={index === currentChordIndex}
           >
             {#if chordsToPlay[index]}
-              {chordsToPlay[index].shortName({ sharps: Math.random() < 0.5 })}
+              {chordsToPlay[index].shortName({ sharps: chordOptions[index].sharps })}
             {:else if index === chordsToPlay.length}
               🎉
             {/if}
@@ -210,6 +197,8 @@
 
     {#if showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}
       <PianoRoll
+        showSharps={chordOptions[currentChordIndex]?.sharps}
+        showNames={showPianoRollNotes}
         highlightedKeys={new Set(chordsToPlay[currentChordIndex].firstInversion())}
         pressedKeys={new Set(pressedKeys.values().map((x) => x % 24))}
         minKey={0}

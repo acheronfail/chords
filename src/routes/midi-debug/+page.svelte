@@ -3,15 +3,16 @@
 
   import { chordsByNotes, createChordKey, midiNumberToNoteName } from "$lib/chords";
   import PianoRoll from "$lib/components/PianoRoll.svelte";
-  import { settings as s, settings } from "$lib/stores.svelte";
   import { getPressedKeys } from "$lib/context-midi";
 
   let pressedKeys = getPressedKeys();
   let showNames = $state(true);
+  let showSharps = $state(true);
+  let pianoRollShowNames = $derived<boolean | "withNumbers">(showNames ? "withNumbers" : false);
 
   let chordKey = $derived(createChordKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
-  let nameOptions = $derived({ sharps: s.current.chordNotationUsesSharps });
+  let nameOptions = $derived({ sharps: showSharps });
 
   let possibleChordShortNames = $derived(
     possibleChords?.map((chord) => `${chord.shortName(nameOptions)}`).join(", "),
@@ -21,13 +22,13 @@
   );
   let pressedKeyNames = $derived(
     Array.from(pressedKeys)
-      .map((key) => midiNumberToNoteName(key, { sharps: s.current.chordNotationUsesSharps }))
+      .map((key) => midiNumberToNoteName(key, { sharps: showSharps }))
       .join(", "),
   );
 </script>
 
 <main>
-  <PianoRoll {pressedKeys} bind:showNames />
+  <PianoRoll {pressedKeys} {showSharps} showNames={pianoRollShowNames} />
 
   <div class="table-wrap">
     <table class="table">
@@ -64,8 +65,8 @@
             <Switch
               ids={{ hiddenInput: "chordNotationUsesSharps" }}
               disabled={!showNames}
-              checked={settings.current.chordNotationUsesSharps}
-              onCheckedChange={(e) => (settings.current.chordNotationUsesSharps = e.checked)}
+              checked={showSharps}
+              onCheckedChange={(e) => (showSharps = e.checked)}
             />
           </td>
         </tr>
