@@ -48,7 +48,7 @@
       style = "var(--color-success-100)";
     }
     if (result === "missed") {
-      style = "var(--color-error-300)";
+      style = "var(--color-error-500)";
     }
     if (index === currentChordIndex && !result) {
       style = "var(--color-secondary-300)";
