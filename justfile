@@ -7,3 +7,6 @@ dev:
 
 test:
   npm run test
+
+bump +type:
+  npm version "{{ type }}" --message "v%s" --force
