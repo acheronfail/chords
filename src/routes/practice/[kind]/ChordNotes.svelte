@@ -1,6 +1,6 @@
 <script lang="ts">
   import { EasyScore, Factory, System } from "vexflow";
-  import { midiNumberToNoteName, type Chord } from "$lib/chords";
+  import { chordsByName, midiNumberToNoteName, type Chord } from "$lib/chords";
   import type { ChordOptions, Result } from "./types";
 
   let {
@@ -20,7 +20,7 @@
     const indices = [currentChordIndex];
     updateChord(
       indices.map((index) => {
-        const notes = chordsToPlay[index].firstInversion();
+        const notes = chordsToPlay[index].rootPosition();
         return notes.map((n) =>
           midiNumberToNoteName(n + 60, {
             sharps: chordOptions[index].sharps,

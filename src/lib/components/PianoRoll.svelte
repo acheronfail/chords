@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { midiNumberToNoteName } from "../chords";
+  import { isMidiNumberBlackNote, midiNumberToNoteName } from "../chords";
   import { settings } from "../stores.svelte";
 
   interface Key {
@@ -43,7 +43,7 @@
       const key = pianoRollMinKey + i;
       const octave = Math.floor((i + pianoRollMinKey) / 12);
       const inOctave = (i + pianoRollMinKey) % 12;
-      const isBlack = (inOctave + (inOctave >= 5 ? 1 : 0)) % 2 === 1;
+      const isBlack = isMidiNumberBlackNote(key);
       const x = octave * OCTAVE_WIDTH + KEY_OFFSETS[inOctave];
       const width = isBlack ? KEY_WIDTH_BLACK : KEY_WIDTH_WHITE;
       return { key, octave, inOctave, isBlack, x, width };

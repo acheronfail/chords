@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Switch } from "@skeletonlabs/skeleton-svelte";
 
-  import { chordsByNotes, createChordKey, midiNumberToNoteName } from "$lib/chords";
+  import { chordsByNotes, createChordMapKey, midiNumberToNoteName } from "$lib/chords";
   import PianoRoll from "$lib/components/PianoRoll.svelte";
   import { getPressedKeys } from "$lib/context-midi";
 
@@ -10,7 +10,7 @@
   let showSharps = $state(true);
   let pianoRollShowNames = $derived<boolean | "withNumbers">(showNames ? "withNumbers" : false);
 
-  let chordKey = $derived(createChordKey(pressedKeys));
+  let chordKey = $derived(createChordMapKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
   let nameOptions = $derived({ sharps: showSharps });
 

@@ -1,6 +1,6 @@
 import { getContext, setContext } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
-import { createChordKey } from "./chords";
+import { createChordMapKey } from "./chords";
 
 const key = {};
 
@@ -16,9 +16,9 @@ export function getPressedKeys(): Set<number> {
 }
 
 export const MidiShortcuts = {
-  skip: createChordKey([0, 1, 3]),
+  skip: createChordMapKey([0, 1, 3]),
 } as const;
 
 export function isMidiShortcut(shortcut: keyof typeof MidiShortcuts) {
-  return createChordKey(getPressedKeys()) === MidiShortcuts[shortcut];
+  return createChordMapKey(getPressedKeys()) === MidiShortcuts[shortcut];
 }

@@ -2,7 +2,7 @@ import { SvelteMap } from "svelte/reactivity";
 
 type ChordNotesKey = string;
 
-export const createChordKey = (notes: Iterable<number>): ChordNotesKey => {
+export const createChordMapKey = (notes: Iterable<number>): ChordNotesKey => {
   return Array.from(
     new Set(
       Array.from(notes)
@@ -51,6 +51,11 @@ export interface NoteNameOptions {
   ascii?: boolean;
 }
 
+export function isMidiNumberBlackNote(n: number): boolean {
+  const offset = n % 12;
+  return (offset + (offset >= 5 ? 1 : 0)) % 2 === 1;
+}
+
 export function midiNumberToNoteName(
   n: number,
   { ascii, sharps, withNumber }: NoteNameOptions = {},
@@ -76,22 +81,38 @@ export function midiNumberToNoteName(
 export class Chord {
   constructor(
     public readonly root: number,
-    public readonly notes: number[],
+    private readonly notes: number[],
     public readonly kind: ChordKind,
   ) {}
 
-  name({ sharps }: NoteNameOptions = { sharps: false }): string {
-    const names = sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
-    return `${names[this.root]} ${ChordNames[this.kind][0]}`;
+  private getNoteNames({ sharps }: NoteNameOptions = { sharps: false }): string[] {
+    // HACK: a work around for making sure we don't generate invalid note names.
+    // This doesn't work for every case (and should fix this properly)...
+    if (this.intervals().includes(11)) {
+      return isMidiNumberBlackNote(this.root) ? NOTE_NAMES.flats : NOTE_NAMES.sharps;
+    }
+
+    return sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
   }
 
-  shortName({ sharps }: NoteNameOptions = { sharps: false }): string {
-    const names = sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
-    return `${names[this.root]}${ChordNames[this.kind][1]}`;
+  /** Long name of chord */
+  name(options?: NoteNameOptions): string {
+    return `${this.getNoteNames(options)[this.root]} ${ChordNames[this.kind][0]}`;
   }
 
-  firstInversion(): number[] {
-    return this.notes.map((n) => (n < this.root ? n + 12 : n));
+  /** short name of chord */
+  shortName(options?: NoteNameOptions): string {
+    return `${this.getNoteNames(options)[this.root]}${ChordNames[this.kind][1]}`;
+  }
+
+  /** list of intervals starting from root */
+  intervals(): number[] {
+    return this.rootPosition().map((n) => n - this.root);
+  }
+
+  /** note numbers in root position (starting from first octave) */
+  rootPosition(): number[] {
+    return this.notes.slice();
   }
 }
 
@@ -104,20 +125,21 @@ export function chordsByKinds(kinds: Iterable<ChordKind>): Chord[] {
 }
 
 const add = (chord: Chord) => {
+  const mapKey = createChordMapKey(chord.rootPosition());
+
   chordsByName.set(chord.name(), chord);
   const bucket =
-    chordsByNotes.get(createChordKey(chord.notes)) ??
+    chordsByNotes.get(mapKey) ??
     (() => {
       const bucket: Chord[] = [];
-      chordsByNotes.set(createChordKey(chord.notes), bucket);
+      chordsByNotes.set(mapKey, bucket);
       return bucket;
     })();
   bucket.push(chord);
 };
 
-// FIXME: augmented chorts collide - CAug == AbAug
 for (let root = 0; root < 12; root++) {
-  const makeChord = (arr: number[]) => arr.map((n) => (n + root) % 12);
+  const makeChord = (arr: number[]) => arr.map((n) => n + root);
 
   add(new Chord(root, makeChord([0, 4, 8]), ChordKind.Augmented));
   add(new Chord(root, makeChord([0, 4, 7]), ChordKind.Major));

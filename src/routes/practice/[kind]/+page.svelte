@@ -2,7 +2,7 @@
   import { Progress } from "@skeletonlabs/skeleton-svelte";
 
   import { getPressedKeys, isMidiShortcut } from "$lib/context-midi";
-  import { Chord, chordsByNotes, createChordKey } from "$lib/chords";
+  import { Chord, chordsByNotes, createChordMapKey } from "$lib/chords";
   import { onMount } from "svelte";
   import LeadSheetSettings from "./PracticeSettings.svelte";
   import PianoRoll from "../../../lib/components/PianoRoll.svelte";
@@ -23,7 +23,7 @@
   let showPianoRoll = $state(false);
   let showPianoRollNotes = $state(true);
 
-  let chordKey = $derived(createChordKey(pressedKeys));
+  let chordKey = $derived(createChordMapKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
   let chordMatches = $derived(
     possibleChords?.includes(chordsToPlay[currentChordIndex]) ??
@@ -188,7 +188,7 @@
       <PianoRoll
         showSharps={chordOptions[currentChordIndex]?.sharps}
         showNames={showPianoRollNotes}
-        highlightedKeys={new Set(chordsToPlay[currentChordIndex].firstInversion())}
+        highlightedKeys={new Set(chordsToPlay[currentChordIndex].rootPosition())}
         pressedKeys={new Set(pressedKeys.values().map((x) => x % 24))}
         minKey={0}
         maxKey={24}
