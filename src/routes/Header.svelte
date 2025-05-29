@@ -14,10 +14,10 @@
     switch (page.url.pathname) {
       case routes.home:
         return "Chords";
-      case routes.leadSheet:
-        return "Practice - Lead Sheet";
-      case routes.chordRecognition:
-        return "Practice - Chord Recognition";
+      case routes.practiceSymbols:
+        return "Practice - Chord Symbols";
+      case routes.practiceNotes:
+        return "Practice - Sheet Music";
       case routes.midiDebug:
         return "MIDI Debugger";
       default: {

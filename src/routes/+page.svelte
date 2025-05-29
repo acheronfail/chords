@@ -24,18 +24,18 @@
 
   let cards: CardProps[] = [
     {
-      href: routes.leadSheet,
+      href: routes.practiceSymbols,
       icon: PianoIcon,
       kind: "Practice Chords",
-      title: "Lead Sheet",
+      title: "Chord Symbols",
       description:
         "Practice your ability to recognise and play chords from Chord Symbols; things like Cmaj7, Dm7, G7, etc.",
     },
     {
-      href: routes.chordRecognition,
+      href: routes.practiceNotes,
       icon: Music4Icon,
       kind: "Practice Chords",
-      title: "Chord Recognition",
+      title: "Sheet Music",
       description: "Practice your ability to recognise and play chords when notated on a staff.",
     },
     {

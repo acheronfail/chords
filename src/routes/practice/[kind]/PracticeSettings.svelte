@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Chord, ChordKind, ChordNames, chordsByKinds } from "$lib/chords";
   import { Switch } from "@skeletonlabs/skeleton-svelte";
   import { SvelteSet } from "svelte/reactivity";
-  import { shuffle } from "../../lib/array";
+  import { Chord, ChordKind, ChordNames, chordsByKinds } from "$lib/chords";
+  import { shuffle } from "$lib/array";
 
   // TODO: endless mode
 
@@ -65,8 +65,6 @@
 </script>
 
 <form class="m-auto flex w-full max-w-3xl flex-col justify-between gap-10 p-10">
-  <h1 class="text-xl font-bold underline">Lead Sheet Options</h1>
-
   <div class="flex flex-col gap-1">
     <div class="flex flex-row items-center justify-between gap-4">
       <h3 class="font-bold">Chord Kinds</h3>

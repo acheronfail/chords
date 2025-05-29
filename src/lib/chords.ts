@@ -48,18 +48,23 @@ const NOTE_NAMES = {
 export interface NoteNameOptions {
   sharps?: boolean;
   withNumber?: boolean;
+  ascii?: boolean;
 }
 
 export function midiNumberToNoteName(
   n: number,
-  { sharps, withNumber }: NoteNameOptions = {},
+  { ascii, sharps, withNumber }: NoteNameOptions = {},
 ): string {
   if (n < 0 || n > 127) {
     return "?";
   }
 
   const names = sharps ? NOTE_NAMES.sharps : NOTE_NAMES.flats;
-  const noteName = names[n % 12];
+  let noteName = names[n % 12];
+  if (ascii) {
+    noteName = noteName.replace("♭", "b").replace("♯", "#");
+  }
+
   if (!withNumber) {
     return noteName;
   }

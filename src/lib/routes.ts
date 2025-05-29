@@ -2,7 +2,7 @@ import { base } from "$app/paths";
 
 export const routes = {
   home: `${base}/`,
-  leadSheet: `${base}/lead-sheet`,
-  chordRecognition: `${base}/chord-recognition`,
+  practiceSymbols: `${base}/practice/symbols`,
+  practiceNotes: `${base}/practice/notes`,
   midiDebug: `${base}/midi-debug`,
 } as const;

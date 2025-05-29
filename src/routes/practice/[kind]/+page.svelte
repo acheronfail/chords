@@ -1,12 +1,16 @@
 <script lang="ts">
   import { Progress } from "@skeletonlabs/skeleton-svelte";
-  import autoAnimate from "@formkit/auto-animate";
 
   import { getPressedKeys, isMidiShortcut } from "$lib/context-midi";
   import { Chord, chordsByNotes, createChordKey } from "$lib/chords";
   import { onMount } from "svelte";
-  import LeadSheetSettings from "./LeadSheetSettings.svelte";
-  import PianoRoll from "../../lib/components/PianoRoll.svelte";
+  import LeadSheetSettings from "./PracticeSettings.svelte";
+  import PianoRoll from "../../../lib/components/PianoRoll.svelte";
+  import ChordSymbols from "./ChordSymbols.svelte";
+  import { page } from "$app/state";
+  import ChordNotes from "./ChordNotes.svelte";
+  import { TriangleAlertIcon } from "@lucide/svelte";
+  import { base } from "$app/paths";
 
   let pressedKeys = getPressedKeys();
   let chordsToPlay = $state<Chord[]>([]);
@@ -49,15 +53,6 @@
       cancelAnimationFrame(frame);
     };
   });
-
-  let carouselItems = $derived<number[]>([
-    currentChordIndex - 1,
-    currentChordIndex,
-    currentChordIndex + 1,
-  ]);
-
-  // used to make sure we don't transition too quickly...
-  let transitionCounter = $state(0);
 
   const next = () => {
     currentChordIndex = Math.min(chordsToPlay.length, currentChordIndex + 1);
@@ -128,35 +123,28 @@
   <LeadSheetSettings bind:chordsToPlay bind:timerDuration bind:showPianoRoll {onStart} />
 {:else}
   <div class="flex flex-col gap-4">
-    <div
-      use:autoAnimate={{ duration: 100 }}
-      ontransitionstart={() => transitionCounter++}
-      ontransitionend={() => transitionCounter--}
-      class="m-auto flex h-[200px] w-2/3 flex-row items-center justify-between gap-10"
-    >
-      {#each carouselItems as index (index)}
-        <div class="min-w-[10em] text-center">
-          <div
-            class="flex items-center justify-center font-bold whitespace-nowrap transition-all duration-100"
-            class:text-error-500={chordResults[index] === "missed"}
-            class:text-success-500={chordResults[index] === "correct"}
-            class:text-surface-500={index > currentChordIndex}
-            class:text-4xl={index === currentChordIndex}
-          >
-            {#if chordsToPlay[index]}
-              {chordsToPlay[index].shortName({ sharps: chordOptions[index].sharps })}
-            {:else if index === chordsToPlay.length}
-              🎉
-            {/if}
+    {#if page.params.kind === "symbols"}
+      <ChordSymbols {currentChordIndex} {chordsToPlay} {chordResults} {chordOptions} />
+    {:else if page.params.kind === "notes"}
+      <ChordNotes {currentChordIndex} {chordsToPlay} {chordResults} {chordOptions} />
+    {:else}
+      <div class="p-4">
+        <div
+          class="card preset-outlined-error-500 grid grid-cols-1 items-center gap-4 p-4 lg:grid-cols-[auto_1fr_auto]"
+        >
+          <TriangleAlertIcon />
+          <div>
+            <p class="font-bold">Something went wrong!</p>
+            <p class="text-xs opacity-60">
+              Try going back to <a class="text-primary-500 underline" href={base}>the homepage</a>?
+            </p>
           </div>
         </div>
-      {/each}
-    </div>
+      </div>
+    {/if}
 
     <div class="flex items-center justify-center">
-      {#if chordResults[currentChordIndex] === "correct"}
-        Nice work! Press any note to continue!
-      {:else if chordResults[currentChordIndex] === "missed"}
+      {#if chordResults[currentChordIndex] === "missed"}
         Ahh, better luck next time! Play the chord to continue.
       {:else if currentChordIndex === chordsToPlay.length}
         Complete!
