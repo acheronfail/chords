@@ -11,25 +11,59 @@
   import ChordNotes from "./ChordNotes.svelte";
   import { TriangleAlertIcon } from "@lucide/svelte";
   import { base } from "$app/paths";
+  import type { ChordOptions, Result } from "./common";
 
   let pressedKeys = getPressedKeys();
   let chordsToPlay = $state<Chord[]>([]);
-  let chordOptions = $derived(chordsToPlay.map(() => ({ sharps: Math.random() < 0.5 })));
 
-  type Result = "missed" | "correct" | undefined;
   let chordResults = $state<Result[]>([]);
   let currentChordIndex = $state(0);
   let settingsOpen = $state(true);
   let showPianoRoll = $state(false);
   let showPianoRollNotes = $state(true);
+  let randomInversions = $state(false);
 
   let chordKey = $derived(createChordMapKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
-
-  let chordMatches = $derived(
-    possibleChords?.includes(chordsToPlay[currentChordIndex]) ??
-      (pressedKeys.size > 0 ? false : undefined),
+  let chordOptions = $derived<ChordOptions[]>(
+    chordsToPlay.map((chord) => ({
+      sharps: Math.random() < 0.5,
+      inversion:
+        page.params.kind === "notes" && randomInversions
+          ? Math.floor(Math.random() * chord.intervals().length)
+          : undefined,
+    })),
   );
+
+  function intervals(keys: number[]) {
+    const min = Math.min(...keys);
+    return keys.map((n) => n - min);
+  }
+
+  function keysMatch(a: number[], b: number[]) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) return false;
+    }
+
+    return true;
+  }
+
+  let chordMatches = $derived.by(() => {
+    const currentChord = chordsToPlay[currentChordIndex];
+    const options = chordOptions[currentChordIndex];
+    const chordPlayed = possibleChords?.includes(currentChord);
+
+    // verify inversions
+    if (chordPlayed && options?.inversion !== undefined) {
+      const keyIntervals = intervals(Array.from(pressedKeys.values()).sort());
+      const targetKeyIntervals = intervals(currentChord.inversion(options.inversion));
+
+      return keysMatch(keyIntervals, targetKeyIntervals);
+    }
+
+    return chordPlayed ?? false;
+  });
 
   let timerElapsed = $state(0);
   let timerDuration = $state<number | null>(5_000);
@@ -121,7 +155,13 @@
 </script>
 
 {#if settingsOpen}
-  <LeadSheetSettings bind:chordsToPlay bind:timerDuration bind:showPianoRoll {onStart} />
+  <LeadSheetSettings
+    bind:chordsToPlay
+    bind:timerDuration
+    bind:showPianoRoll
+    bind:randomInversions
+    {onStart}
+  />
 {:else}
   <div class="flex flex-col gap-4">
     {#if page.params.kind === "symbols"}
@@ -186,10 +226,13 @@
     </div>
 
     {#if showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}
+      {@const options = chordOptions[currentChordIndex]}
       <PianoRoll
-        showSharps={chordOptions[currentChordIndex]?.sharps}
+        showSharps={options?.sharps}
         showNames={showPianoRollNotes}
-        highlightedKeys={new Set(chordsToPlay[currentChordIndex].inversion(0))}
+        highlightedKeys={new Set(
+          chordsToPlay[currentChordIndex].inversion(options?.inversion ?? 0),
+        )}
         pressedKeys={new Set(pressedKeys.values().map((x) => x % 24))}
         minKey={0}
         maxKey={24}

@@ -3,6 +3,7 @@
   import { SvelteSet } from "svelte/reactivity";
   import { Chord, ChordKind, ChordNames, chordsByKinds } from "$lib/chords";
   import { shuffle } from "$lib/array";
+  import { page } from "$app/state";
 
   let {
     open = $bindable(true),
@@ -11,6 +12,7 @@
     timerDuration = $bindable(5000),
     showPianoRoll = $bindable(false),
     showPianoRollNotes = $bindable(true),
+    randomInversions = $bindable(false),
     onStart,
   }: {
     chordCount?: number;
@@ -18,6 +20,7 @@
     open?: boolean;
     showPianoRoll?: boolean;
     showPianoRollNotes?: boolean;
+    randomInversions?: boolean;
     timerDuration: number | null;
     onStart: () => void;
   } = $props();
@@ -63,31 +66,48 @@
 </script>
 
 <form class="m-auto flex w-full max-w-3xl flex-col justify-between gap-10 p-10">
-  <div class="flex flex-col gap-1">
-    <div class="flex flex-row items-center justify-between gap-4">
-      <h3 class="font-bold">Chord Kinds</h3>
-      <div>
-        <button class="btn preset-outlined-surface-500" onclick={randomiseChords}>randomise</button>
-        <button class="btn preset-outlined-surface-500" onclick={allChords}>all</button>
-        <button class="btn preset-outlined-surface-500" onclick={noChords}>none</button>
+  <div class="flex flex-col gap-2">
+    <h3 class="font-bold">Chords</h3>
+
+    <div class="flex flex-col gap-1">
+      <div class="flex flex-row items-center justify-between gap-4">
+        <span>Which chords should be included?</span>
+        <div>
+          <button class="btn preset-outlined-surface-500" onclick={allChords}>all</button>
+          <button class="btn preset-outlined-surface-500" onclick={randomiseChords}>random</button>
+          <button class="btn preset-outlined-surface-500" onclick={noChords}>none</button>
+        </div>
       </div>
+      {#each Object.entries(ChordNames) as [kind, [name]]}
+        {@const k = parseInt(kind)}
+        <label
+          class="label flex cursor-pointer items-center justify-start gap-2 select-none"
+          for="kind-{kind}"
+        >
+          <Switch
+            ids={{ hiddenInput: `kind-${kind}` }}
+            checked={kinds.has(k)}
+            onCheckedChange={() => (kinds.has(k) ? kinds.delete(k) : kinds.add(k))}
+          />
+          {name}
+        </label>
+      {/each}
+      {#if !kindsValid}
+        <span class="text-error-500 text-xs">Must select at least one chord kind</span>
+      {/if}
     </div>
-    {#each Object.entries(ChordNames) as [kind, [name]]}
-      {@const k = parseInt(kind)}
-      <label
-        class="label flex cursor-pointer items-center justify-start gap-2 select-none"
-        for="kind-{kind}"
-      >
+
+    {#if page.params.kind === "notes"}
+      <div class="flex items-center justify-between gap-4">
+        <label class="label cursor-pointer select-none" for="randomInversions">
+          Randomise chord inversions?
+        </label>
         <Switch
-          ids={{ hiddenInput: `kind-${kind}` }}
-          checked={kinds.has(k)}
-          onCheckedChange={() => (kinds.has(k) ? kinds.delete(k) : kinds.add(k))}
+          ids={{ hiddenInput: "randomInversions" }}
+          checked={randomInversions}
+          onCheckedChange={(e) => (randomInversions = e.checked)}
         />
-        {name}
-      </label>
-    {/each}
-    {#if !kindsValid}
-      <span class="text-error-500 text-xs">Must select at least one chord kind</span>
+      </div>
     {/if}
   </div>
 
