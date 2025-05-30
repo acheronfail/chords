@@ -1,7 +1,7 @@
 <script lang="ts">
   import autoAnimate from "@formkit/auto-animate";
   import type { Chord } from "$lib/chords";
-  import type { ChordOptions, Result } from "./types";
+  import type { ChordOptions, Result } from "./common";
 
   let {
     currentChordIndex,
@@ -38,7 +38,6 @@
         class:text-error-500={chordResults[index] === "missed"}
         class:text-success-500={chordResults[index] === "correct"}
         class:text-surface-500={index > currentChordIndex}
-        class:text-secondary-300={index === currentChordIndex && !chordResults[index]}
         class:text-4xl={index === currentChordIndex}
       >
         {#if chordsToPlay[index]}

@@ -6,7 +6,7 @@
     midiNumberToNoteName,
     type Chord,
   } from "$lib/chords";
-  import type { ChordOptions, Result } from "./types";
+  import type { ChordOptions, Result } from "./common";
 
   let {
     currentChordIndex,
@@ -51,11 +51,11 @@
       style = "var(--color-error-500)";
     }
     if (index === currentChordIndex && !result) {
-      style = "var(--color-secondary-300)";
+      style = "white";
     }
 
     if (index !== currentChordIndex) {
-      style = makeTransparent(style, 50);
+      style = makeTransparent(style, 30);
     }
 
     return { fillStyle: style, strokeStyle: style };
