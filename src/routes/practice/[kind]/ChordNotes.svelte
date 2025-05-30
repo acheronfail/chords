@@ -1,11 +1,6 @@
 <script lang="ts">
-  import { EasyScore, Factory, System } from "vexflow";
-  import {
-    chordsByName,
-    isMidiNumberBlackNote,
-    midiNumberToNoteName,
-    type Chord,
-  } from "$lib/chords";
+  import { Factory } from "vexflow";
+  import { isMidiNumberBlackNote, midiNumberToNoteName, type Chord } from "$lib/chords";
   import type { ChordOptions, Result } from "./common";
 
   let {
@@ -20,14 +15,10 @@
     chordOptions: ChordOptions[];
   } = $props();
 
-  // TODO: show upcoming (and past) chords
   $effect(() => {
     renderMusic([currentChordIndex - 1, currentChordIndex, currentChordIndex + 1]);
   });
 
-  // easy way for dark mode is to invert, but could look at
-  // https://github.com/0xfe/vexflow/wiki/Coloring-&-Styling-Notes for more options
-  //
   // see https://github.com/0xfe/vexflow/blob/master/tests/bach_tests.ts
   // for a good example of how to build bars
   let div: HTMLDivElement;
