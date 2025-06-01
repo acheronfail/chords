@@ -167,4 +167,3 @@ function makeDeepProxy(root: unknown, onRead: () => void, onWrite: () => void) {
 
   return walk(root);
 }
-

@@ -5,11 +5,11 @@
   import { shuffle } from "$lib/array";
   import { page } from "$app/state";
   import { settings } from "../../../lib/svelte/stores.svelte";
+  import { untrack } from "svelte";
 
-  // TODO: save these to settings
   let {
-    open = $bindable(true),
     chordsToPlay = $bindable([]),
+    open = $bindable(true),
     onSubmit,
   }: {
     chordsToPlay?: Chord[];
@@ -17,7 +17,13 @@
     onSubmit: () => void;
   } = $props();
 
-  let kinds = new SvelteSet<ChordKind>([ChordKind.Major]);
+  let kinds = new SvelteSet<ChordKind>(settings.current.practice.chordKinds);
+  $effect(() => {
+    const chordKinds = Array.from(kinds.values());
+    untrack(() => {
+      settings.current.practice.chordKinds = chordKinds;
+    });
+  });
 
   let countValid = $derived(settings.current.practice.chordCount >= 5);
   let timerValid = $derived(settings.current.practice.timerDuration >= 100);

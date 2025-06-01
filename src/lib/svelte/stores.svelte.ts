@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
 import { PersistentState } from "$lib/svelte/persistent-state.svelte";
+import { ChordKind } from "../chords";
 
 const C4 = 60;
 
@@ -14,6 +15,7 @@ export const settings = new PersistentState({
 
     practice: z.object({
       chordCount: z.number(),
+      chordKinds: z.enum(ChordKind).array(),
       randomInversions: z.boolean(),
       showPianoRoll: z.boolean(),
       showPianoRollNotes: z.boolean(),
@@ -29,6 +31,7 @@ export const settings = new PersistentState({
 
     practice: {
       chordCount: 12,
+      chordKinds: [ChordKind.Major],
       randomInversions: false,
       showPianoRoll: false,
       showPianoRollNotes: true,
