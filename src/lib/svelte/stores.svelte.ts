@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 import { PersistentState } from "$lib/svelte/persistent-state.svelte";
-import { ChordKind } from "../chords";
+import { ChordKind, Clef } from "../chords";
 
 // NOTE: when this is incremented, then users will lose their stored values
 // as the data will be migrated to a new key
@@ -29,6 +29,7 @@ export const settings = new PersistentState({
     practice: z.object({
       chordCount: z.number(),
       chordKinds: z.enum(ChordKind).array(),
+      clef: z.enum(Clef),
       randomInversions: z.boolean(),
       showPianoRoll: z.boolean(),
       showPianoRollNotes: z.boolean(),
@@ -45,6 +46,7 @@ export const settings = new PersistentState({
     practice: {
       chordCount: 12,
       chordKinds: [ChordKind.Major],
+      clef: Clef.Treble,
       randomInversions: false,
       showPianoRoll: false,
       showPianoRollNotes: true,

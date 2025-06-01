@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Switch } from "@skeletonlabs/skeleton-svelte";
   import { SvelteSet } from "svelte/reactivity";
-  import { Chord, ChordKind, ChordNames, chordsByKinds } from "$lib/chords";
+  import { Chord, ChordKind, ChordNames, chordsByKinds, Clef } from "$lib/chords";
   import { shuffle } from "$lib/array";
   import { page } from "$app/state";
   import { settings } from "../../../lib/svelte/stores.svelte";
@@ -101,6 +101,14 @@
           checked={settings.current.practice.randomInversions}
           onCheckedChange={(e) => (settings.current.practice.randomInversions = e.checked)}
         />
+      </div>
+      <div class="flex items-center justify-between gap-4">
+        <label class="label cursor-pointer select-none" for="randomInversions"> Clef </label>
+        <select class="select" bind:value={settings.current.practice.clef}>
+          {#each Object.values(Clef) as clef}
+            <option value={clef}>{clef}</option>
+          {/each}
+        </select>
       </div>
     {/if}
   </div>

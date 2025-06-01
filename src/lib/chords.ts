@@ -12,6 +12,11 @@ export const createChordMapKey = (notes: Iterable<number>): ChordNotesKey => {
   ).join(",");
 };
 
+export enum Clef {
+  Treble = "treble",
+  Bass = "bass",
+}
+
 export enum ChordKind {
   Major,
   Minor,

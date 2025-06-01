@@ -9,8 +9,8 @@
 - [x] chord detection logic allows all inversions - this is incorrect in sheet music practice
 - [x] save/restore lead sheet settings
 - [x] show different inversions in sheet music practice
+- [x] support bass clef in practice notes?
 - [ ] endless option for practice
-- [ ] support bass clef in practice notes?
 - [ ] support key signatures in practice notes
     - (`stave.setKeySignature`; but will have to adjust the note names to be in the right key)
 - [ ] gamify the practice sessions (remove countdown progress, but have score logarithmically decreasing)

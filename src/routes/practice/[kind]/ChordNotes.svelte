@@ -1,8 +1,9 @@
 <script lang="ts">
   import { Factory } from "vexflow";
-  import { isMidiNumberBlackNote, midiNumberToNoteName, type Chord } from "$lib/chords";
+  import { Clef, isMidiNumberBlackNote, midiNumberToNoteName, type Chord } from "$lib/chords";
   import type { ChordOptions, Result } from "./common";
   import { onMount } from "svelte";
+  import { settings } from "../../../lib/svelte/stores.svelte";
 
   let {
     currentChordIndex,
@@ -17,7 +18,10 @@
   } = $props();
 
   const update = () =>
-    renderMusic([currentChordIndex - 1, currentChordIndex, currentChordIndex + 1]);
+    renderMusic(
+      [currentChordIndex - 1, currentChordIndex, currentChordIndex + 1],
+      settings.current.practice.clef,
+    );
 
   // re-render when current index changes
   $effect(() => {
@@ -64,7 +68,7 @@
     return { fillStyle: style, strokeStyle: style };
   };
 
-  function renderMusic(indices: number[]) {
+  function renderMusic(indices: number[], clef: Clef) {
     const box = div.getBoundingClientRect();
     div.innerHTML = "";
 
@@ -80,6 +84,9 @@
     const timeSpec = `${totalChords}/${noteDuration}`;
     score.set({ time: timeSpec });
 
+    const octave = clef === Clef.Treble ? 60 : 36;
+    const restNote = clef === Clef.Treble ? 71 : 50;
+
     const chordNotes = indices.map((index) => {
       if (!chordsToPlay[index]) {
         return null;
@@ -91,7 +98,7 @@
       // This doesn't work for every case (and should fix this properly)...
       const has11Interval = chord.intervals().includes(11);
       return chord.inversion(options?.inversion ?? 0).map((n) =>
-        midiNumberToNoteName(n + 60, {
+        midiNumberToNoteName(octave + n, {
           sharps: has11Interval ? !isMidiNumberBlackNote(chord.root) : chordOptions[index].sharps,
           withNumber: true,
           ascii: true,
@@ -99,16 +106,19 @@
       );
     });
 
+    const restNoteName = midiNumberToNoteName(restNote, { ascii: true, withNumber: true });
     const noteSpec = chordNotes
-      .map((notes) => (notes ? `(${notes.join(" ")})/${noteDuration}` : `B4/${noteDuration}/r`))
+      .map((notes) =>
+        notes ? `(${notes.join(" ")})/${noteDuration}` : `${restNoteName}/${noteDuration}/r`,
+      )
       .join(", ");
 
     // create notes
-    const notes = score.notes(noteSpec, { stem: "up" });
+    const notes = score.notes(noteSpec, { clef, stem: "up" });
     notes.forEach((note, i) => note.setStyle(noteStyle(indices[i])));
 
     // create the stave
-    const stave = system.addStave({ voices: [score.voice(notes)] }).addClef("treble");
+    const stave = system.addStave({ voices: [score.voice(notes)] }).addClef(clef);
     stave.setStyle(staveStyle);
     stave.setDefaultLedgerLineStyle(staveStyle);
 
