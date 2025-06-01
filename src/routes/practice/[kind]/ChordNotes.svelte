@@ -2,6 +2,7 @@
   import { Factory } from "vexflow";
   import { isMidiNumberBlackNote, midiNumberToNoteName, type Chord } from "$lib/chords";
   import type { ChordOptions, Result } from "./common";
+  import { onMount } from "svelte";
 
   let {
     currentChordIndex,
@@ -15,8 +16,19 @@
     chordOptions: ChordOptions[];
   } = $props();
 
-  $effect(() => {
+  const update = () =>
     renderMusic([currentChordIndex - 1, currentChordIndex, currentChordIndex + 1]);
+
+  // re-render when current index changes
+  $effect(() => {
+    currentChordIndex;
+    update();
+  });
+
+  // re-render when window resized
+  onMount(() => {
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   });
 
   // see https://github.com/0xfe/vexflow/blob/master/tests/bach_tests.ts
@@ -56,8 +68,10 @@
     const box = div.getBoundingClientRect();
     div.innerHTML = "";
 
-    const factory = new Factory({ renderer: { elementId: div.id, width: box.width, height: 150 } });
-    const system = factory.System({ width: box.width - box.left - 40 });
+    const width = Math.max(200, box.width);
+
+    const factory = new Factory({ renderer: { elementId: div.id, width: width, height: 150 } });
+    const system = factory.System({ width: width - box.left - 40 });
     const score = factory.EasyScore();
 
     // set time signature to allow enough space for all chords in bar

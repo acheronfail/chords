@@ -63,6 +63,8 @@
     return chordPlayed ?? false;
   });
 
+  // TODO: rather than a timer, keep track of time and apply a score (logarithmic)
+  // which increases the shorter time between notes? set this as the score?
   let frame: number;
   let timerElapsed = $state(0);
   let timerStopped = $state(true);
