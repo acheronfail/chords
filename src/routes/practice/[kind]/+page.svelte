@@ -126,6 +126,7 @@
     if (!settingsOpen && currentChordIndex === chordsToPlay.length) {
       // TODO: pop up modal or something with stats
       console.log("complete!");
+      timerStopped = true;
     }
   });
 

@@ -82,8 +82,8 @@ export class PersistentState<T> {
       if (result.success) {
         value = result.data;
       } else {
-        console.error("failed to validate value", { error: result.error, value });
-        value = this.#value;
+        console.warn("failed to validate value", { error: result.error, value });
+        return;
       }
     }
 

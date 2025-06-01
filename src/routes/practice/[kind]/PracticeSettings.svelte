@@ -25,10 +25,10 @@
     });
   });
 
+  let kindsValid = $derived(kinds.size > 0);
   let countValid = $derived(settings.current.practice.chordCount >= 5);
   let timerValid = $derived(settings.current.practice.timerDuration >= 100);
-  let kindsValid = $derived(kinds.size > 0);
-  let valid = $derived(countValid && kindsValid);
+  let valid = $derived(countValid && kindsValid && timerValid);
 
   const noChords = () => kinds.clear();
   const allChords = () => Object.values(ChordKind).forEach((kind) => kinds.add(kind as ChordKind));
@@ -110,9 +110,8 @@
         type="number"
         class="input"
         name="count"
-        min="5"
-        required
-        bind:value={settings.current.practice.chordCount}
+        oninput={(e) => (settings.current.practice.chordCount = parseInt(e.currentTarget.value))}
+        value={settings.current.practice.chordCount}
       />
       {#if !countValid}
         <span class="text-error-500 text-xs">Must be at least 5</span>
@@ -142,7 +141,8 @@
         name="timer"
         min="100"
         disabled={!settings.current.practice.timerEnabled}
-        bind:value={settings.current.practice.timerDuration}
+        oninput={(e) => (settings.current.practice.timerDuration = parseInt(e.currentTarget.value))}
+        value={settings.current.practice.timerDuration}
       />
       {#if !timerValid}
         <span class="text-error-500 text-xs">Must be at least 100</span>
