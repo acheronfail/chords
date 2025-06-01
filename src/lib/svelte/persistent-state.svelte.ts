@@ -36,7 +36,7 @@ export class PersistentState<T> {
 
     if (typeof this.#storage !== "undefined") {
       if (this.#storage.getItem(key) === null) {
-        this.#storage.setItem(key, JSON.stringify(initialise));
+        this.#storage.setItem(key, JSON.stringify(this.#value));
       }
     }
   }
