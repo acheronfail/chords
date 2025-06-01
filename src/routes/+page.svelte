@@ -10,7 +10,7 @@
   import { fade } from "svelte/transition";
 
   import { routes } from "$lib/routes";
-  import { cachedSettings } from "$lib/stores.svelte";
+  import { cachedSettings } from "$lib/svelte/stores.svelte";
 
   interface CardProps {
     href: string;

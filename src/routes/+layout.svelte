@@ -1,9 +1,9 @@
 <script lang="ts">
   import "../app.css";
 
-  import { getPressedKeys, initPressedKeys } from "$lib/context-midi";
+  import { getPressedKeys, initPressedKeys } from "$lib/context/midi";
   import { getMidiDevice } from "$lib/midi";
-  import { cachedSettings } from "$lib/stores.svelte";
+  import { cachedSettings } from "$lib/svelte/stores.svelte";
   import Header from "./Header.svelte";
 
   initPressedKeys();

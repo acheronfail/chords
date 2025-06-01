@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Progress } from "@skeletonlabs/skeleton-svelte";
 
-  import { getPressedKeys, isMidiShortcut } from "$lib/context-midi";
+  import { getPressedKeys, isMidiShortcut } from "$lib/context/midi";
   import { Chord, chordsByNotes, createChordMapKey } from "$lib/chords";
   import { onMount } from "svelte";
   import LeadSheetSettings from "./PracticeSettings.svelte";

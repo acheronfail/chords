@@ -1,6 +1,6 @@
 <script lang="ts">
   import { isMidiNumberBlackNote, midiNumberToNoteName } from "../chords";
-  import { settings } from "../stores.svelte";
+  import { settings } from "../svelte/stores.svelte";
 
   interface Key {
     key: number;

@@ -1,6 +1,6 @@
 import { getContext, setContext } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
-import { createChordMapKey } from "./chords";
+import { createChordMapKey } from "$lib/chords";
 
 const key = {};
 

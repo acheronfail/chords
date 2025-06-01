@@ -3,7 +3,7 @@
 
   import { chordsByNotes, createChordMapKey, midiNumberToNoteName } from "$lib/chords";
   import PianoRoll from "$lib/components/PianoRoll.svelte";
-  import { getPressedKeys } from "$lib/context-midi";
+  import { getPressedKeys } from "$lib/context/midi";
 
   let pressedKeys = getPressedKeys();
   let showNames = $state(true);

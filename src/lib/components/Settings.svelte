@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cachedSettings, settings } from "../stores.svelte";
+  import { cachedSettings, settings } from "../svelte/stores.svelte";
 
   import Blanket from "./Blanket.svelte";
   import { type Device, getMidiDevices } from "$lib/midi";

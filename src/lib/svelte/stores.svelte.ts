@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { PersistentState } from "$lib/persistent-state.svelte";
+import { PersistentState } from "$lib/svelte/persistent-state.svelte";
 
 const C4 = 60;
 
