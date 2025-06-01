@@ -102,7 +102,12 @@
   </g>
 {/snippet}
 
-<svg version="1.1" viewBox="0 0 {SVG_WIDTH} {svgHeight}" role="graphics-object">
+<svg
+  version="1.1"
+  viewBox="0 0 {SVG_WIDTH} {svgHeight}"
+  role="graphics-object"
+  class="bg-surface-50"
+>
   <g>
     {#each keys as key}
       {#if !key.isBlack}

@@ -4,6 +4,9 @@
   import { chordsByNotes, createChordMapKey, midiNumberToNoteName } from "$lib/chords";
   import PianoRoll from "$lib/components/PianoRoll.svelte";
   import { getPressedKeys } from "$lib/context/midi";
+  import { settings } from "$lib/svelte/stores.svelte";
+
+  const availableKeys = new Array(128).fill(0).map((_, i) => i);
 
   let pressedKeys = getPressedKeys();
   let showNames = $state(true);
@@ -34,15 +37,54 @@
     <table class="table">
       <tbody>
         <tr>
-          <th scope="row" class="text-surface-300" colspan="2">
+          <th scope="row" class="text-surface-300 bg-surface-900" colspan="2">
             <span class="text-md font-bold underline">Options</span>
           </th>
         </tr>
+
+        <tr>
+          <th scope="row">
+            <label for="showNoteNames" class="label cursor-pointer">First key on Piano Roll</label>
+          </th>
+          <td class="w-1/2">
+            <select
+              id="pianoRollMinKey"
+              class="select bg-primary-950"
+              bind:value={settings.current.pianoRollMinKey}
+            >
+              {#each availableKeys.slice(0, settings.current.pianoRollMaxKey - 12 + 1) as key}
+                <option value={key}
+                  >{midiNumberToNoteName(key, { sharps: showSharps, withNumber: true })}</option
+                >
+              {/each}
+            </select>
+          </td>
+        </tr>
+
+        <tr>
+          <th scope="row">
+            <label for="showNoteNames" class="label cursor-pointer">Last key on Piano Roll</label>
+          </th>
+          <td>
+            <select
+              id="pianoRollMaxKey"
+              class="select bg-primary-950"
+              bind:value={settings.current.pianoRollMaxKey}
+            >
+              {#each availableKeys.slice(settings.current.pianoRollMinKey + 12) as key}
+                <option value={key}
+                  >{midiNumberToNoteName(key, { sharps: showSharps, withNumber: true })}</option
+                >
+              {/each}
+            </select>
+          </td>
+        </tr>
+
         <tr>
           <th scope="row">
             <label for="showNoteNames" class="label cursor-pointer">Show Note Names?</label>
           </th>
-          <td class="!text-right">
+          <td class="text-right">
             <Switch
               ids={{ hiddenInput: "showNoteNames" }}
               checked={showNames}
@@ -50,6 +92,7 @@
             />
           </td>
         </tr>
+
         <tr>
           <th scope="row">
             <label
@@ -61,7 +104,7 @@
               Sharps instead of flats?
             </label>
           </th>
-          <td class="!text-right">
+          <td class="text-right">
             <Switch
               ids={{ hiddenInput: "chordNotationUsesSharps" }}
               disabled={!showNames}
@@ -72,21 +115,21 @@
         </tr>
 
         <tr>
-          <th scope="row" class="text-surface-300" colspan="2">
+          <th scope="row" class="text-surface-300 bg-surface-900" colspan="2">
             <span class="text-md font-bold underline">Info</span>
           </th>
         </tr>
-        <tr>
+        <tr class="font-mono">
           <th scope="row" class="text-surface-300">Pressed Keys</th>
-          <td class="!text-right">{pressedKeyNames}</td>
+          <td class="text-right">{pressedKeyNames}</td>
         </tr>
-        <tr>
+        <tr class="font-mono">
           <th scope="row" class="text-surface-300">Possible Chords (short)</th>
-          <td class="!text-right">{possibleChordShortNames}</td>
+          <td class="text-right">{possibleChordShortNames}</td>
         </tr>
-        <tr>
+        <tr class="font-mono">
           <th scope="row" class="text-surface-300">Possible Chords (long)</th>
-          <td class="!text-right">{possibleChordLongNames}</td>
+          <td class="text-right">{possibleChordLongNames}</td>
         </tr>
       </tbody>
     </table>

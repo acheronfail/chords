@@ -3,7 +3,6 @@
 
   import Blanket from "./Blanket.svelte";
   import { type Device, getMidiDevices } from "$lib/midi";
-  import { midiNumberToNoteName } from "../chords";
 
   let {
     open = $bindable(),
@@ -12,8 +11,6 @@
     open: boolean;
     midiDevices?: Device[];
   } = $props();
-
-  const availableKeys = new Array(128).fill(0).map((_, i) => i);
 
   async function refreshDevices() {
     midiDevices = await getMidiDevices();
@@ -44,34 +41,8 @@
   </div>
 
   <div class="flex flex-col">
-    <h3 class="font-bold">Piano Roll</h3>
-    <div class="flex items-center gap-2">
-      <label for="pianoRollMinKey" class="label">
-        <span class="label-text">First key on piano roll</span>
-        <select id="pianoRollMinKey" class="select" bind:value={settings.current.pianoRollMinKey}>
-          {#each availableKeys.slice(0, settings.current.pianoRollMaxKey - 12 + 1) as key}
-            <option value={key}
-              >{midiNumberToNoteName(key, { sharps: true, withNumber: true })}</option
-            >
-          {/each}
-        </select>
-      </label>
-      <label for="pianoRollMaxKey" class="label">
-        <span class="label-text">Last key on piano roll</span>
-        <select id="pianoRollMaxKey" class="select" bind:value={settings.current.pianoRollMaxKey}>
-          {#each availableKeys.slice(settings.current.pianoRollMinKey + 12) as key}
-            <option value={key}
-              >{midiNumberToNoteName(key, { sharps: true, withNumber: true })}</option
-            >
-          {/each}
-        </select>
-      </label>
-    </div>
-  </div>
-
-  <div class="flex flex-col">
     <button class="btn preset-outlined-surface-500 mt-10" onclick={() => settings.reset()}>
-      Reset all settings to defaults
+      Reset all settings and caches
     </button>
     <div class="text-surface-500 flex items-center justify-center">
       {import.meta.env.VITE_BUILD_VERSION
