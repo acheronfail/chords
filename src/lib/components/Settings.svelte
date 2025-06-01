@@ -3,6 +3,7 @@
 
   import Blanket from "./Blanket.svelte";
   import { type Device, getMidiDevices } from "$lib/midi";
+  import { routes } from "../routes";
 
   let {
     open = $bindable(),
@@ -24,7 +25,7 @@
 </script>
 
 <Blanket bind:open title="Settings" classes="flex flex-col w-full justify-between p-4 gap-10">
-  <div class="flex flex-col">
+  <div class="flex flex-col gap-2">
     <h3 class="font-bold">MIDI</h3>
     <label for="midiDeviceId" class="label">Selected Device</label>
     <div class="flex items-center gap-2">
@@ -38,6 +39,11 @@
         Refresh devices
       </button>
     </div>
+    <a href={routes.midiDebug} class="flex items-center justify-end">
+      <button class="btn btn-sm preset-outlined-surface-500" onclick={() => (open = false)}>
+        Open MIDI tester
+      </button>
+    </a>
   </div>
 
   <div class="flex flex-col">

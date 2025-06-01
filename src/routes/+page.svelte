@@ -1,11 +1,5 @@
 <script lang="ts">
-  import {
-    Music4Icon,
-    PianoIcon,
-    TriangleAlertIcon,
-    WrenchIcon,
-    type IconProps,
-  } from "@lucide/svelte";
+  import { Music4Icon, PianoIcon, TriangleAlertIcon, type IconProps } from "@lucide/svelte";
   import type { Component } from "svelte";
   import { fade } from "svelte/transition";
 
@@ -37,13 +31,6 @@
       kind: "Practice Chords",
       title: "Sheet Music",
       description: "Practice your ability to recognise and play chords when notated on a staff.",
-    },
-    {
-      href: routes.midiDebug,
-      icon: WrenchIcon,
-      kind: "Tools",
-      title: "MIDI Debug",
-      description: "A tool to test and check if your MIDI devices are connected properly.",
     },
   ];
 </script>
