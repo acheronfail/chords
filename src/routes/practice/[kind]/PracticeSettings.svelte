@@ -4,23 +4,17 @@
   import { Chord, ChordKind, ChordNames, chordsByKinds } from "$lib/chords";
   import { shuffle } from "$lib/array";
   import { page } from "$app/state";
+  import { settings } from "../../../lib/svelte/stores.svelte";
 
+  // TODO: save these to settings
   let {
     open = $bindable(true),
-    chordCount = 12,
     chordsToPlay = $bindable([]),
     timerDuration = $bindable(5000),
-    showPianoRoll = $bindable(false),
-    showPianoRollNotes = $bindable(true),
-    randomInversions = $bindable(false),
     onStart,
   }: {
-    chordCount?: number;
     chordsToPlay?: Chord[];
     open?: boolean;
-    showPianoRoll?: boolean;
-    showPianoRollNotes?: boolean;
-    randomInversions?: boolean;
     timerDuration: number | null;
     onStart: () => void;
   } = $props();
@@ -28,7 +22,7 @@
   let kinds = new SvelteSet<ChordKind>([ChordKind.Major]);
   let timerEnabled = $state(true);
 
-  let countValid = $derived(chordCount >= 5);
+  let countValid = $derived(settings.current.practice.chordCount >= 5);
   let timerValid = $derived(timerDuration !== null ? timerDuration >= 100 : true);
   let kindsValid = $derived(kinds.size > 0);
   let valid = $derived(countValid && kindsValid);
@@ -51,10 +45,10 @@
     // generate chords
     const pool = chordsByKinds(kinds);
     chordsToPlay = [];
-    while (chordsToPlay.length < chordCount) {
+    while (chordsToPlay.length < settings.current.practice.chordCount) {
       chordsToPlay.push(...pool);
     }
-    chordsToPlay = shuffle(chordsToPlay).slice(0, chordCount);
+    chordsToPlay = shuffle(chordsToPlay).slice(0, settings.current.practice.chordCount);
 
     // set timer
     if (!timerEnabled) {
@@ -104,8 +98,8 @@
         </label>
         <Switch
           ids={{ hiddenInput: "randomInversions" }}
-          checked={randomInversions}
-          onCheckedChange={(e) => (randomInversions = e.checked)}
+          checked={settings.current.practice.randomInversions}
+          onCheckedChange={(e) => (settings.current.practice.randomInversions = e.checked)}
         />
       </div>
     {/if}
@@ -114,7 +108,14 @@
   <div class="flex flex-col">
     <label class="label">
       <h3 class="font-bold">Number of chords to practice</h3>
-      <input type="number" class="input" name="count" min="5" required bind:value={chordCount} />
+      <input
+        type="number"
+        class="input"
+        name="count"
+        min="5"
+        required
+        bind:value={settings.current.practice.chordCount}
+      />
       {#if !countValid}
         <span class="text-error-500 text-xs">Must be at least 5</span>
       {/if}
@@ -160,8 +161,8 @@
       </label>
       <Switch
         ids={{ hiddenInput: "showPianoRollNotes" }}
-        checked={showPianoRollNotes}
-        onCheckedChange={(e) => (showPianoRollNotes = e.checked)}
+        checked={settings.current.practice.showPianoRollNotes}
+        onCheckedChange={(e) => (settings.current.practice.showPianoRollNotes = e.checked)}
       />
     </div>
 
@@ -171,8 +172,8 @@
       </label>
       <Switch
         ids={{ hiddenInput: "showPianoRoll" }}
-        checked={showPianoRoll}
-        onCheckedChange={(e) => (showPianoRoll = e.checked)}
+        checked={settings.current.practice.showPianoRoll}
+        onCheckedChange={(e) => (settings.current.practice.showPianoRoll = e.checked)}
       />
     </div>
   </div>

@@ -10,7 +10,7 @@
   import { fade } from "svelte/transition";
 
   import { routes } from "$lib/routes";
-  import { cachedSettings } from "$lib/svelte/stores.svelte";
+  import { settings } from "$lib/svelte/stores.svelte";
 
   interface CardProps {
     href: string;
@@ -80,7 +80,7 @@
   </a>
 {/snippet}
 
-{#if cachedSettings.current.midiDeviceId === null}
+{#if settings.current.midiDeviceId === null}
   <div transition:fade class="p-4">
     <div
       class="card preset-outlined-warning-500 grid grid-cols-1 items-center gap-4 p-4 lg:grid-cols-[auto_1fr_auto]"

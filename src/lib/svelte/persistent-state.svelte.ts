@@ -6,7 +6,7 @@ import { z } from "zod/v4";
 export type StorageType = "localStorage" | "sessionStorage";
 export interface Options<T> {
   key: string;
-  initial: () => T;
+  initialise: () => T;
   schema?: z.ZodType<T>;
   storageType?: StorageType;
 }
@@ -27,7 +27,7 @@ export class PersistentState<T> {
     this.#version += 1;
   };
 
-  constructor({ key, initial, schema, storageType = "localStorage" }: Options<T>) {
+  constructor({ key, initialise: initial, schema, storageType = "localStorage" }: Options<T>) {
     this.#key = key;
     this.#schema = schema;
     this.#initial = initial;
@@ -56,6 +56,7 @@ export class PersistentState<T> {
       value = JSON.parse(stored);
     } catch (error) {
       console.warn("failed to read value", { error, key: this.#key });
+      this.reset();
     }
 
     if (this.#schema) {
@@ -64,6 +65,7 @@ export class PersistentState<T> {
         value = result.data;
       } else {
         console.warn("failed to validate value", { error: result.error, value });
+        this.reset();
       }
     }
 
@@ -90,6 +92,9 @@ export class PersistentState<T> {
 
   reset() {
     this.current = this.#initial();
+    if (typeof this.#storage !== "undefined") {
+      this.#storage.removeItem(this.#key);
+    }
   }
 
   get current(): T {

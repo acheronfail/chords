@@ -3,7 +3,7 @@
 
   import { getPressedKeys, initPressedKeys } from "$lib/context/midi";
   import { getMidiDevice } from "$lib/midi";
-  import { cachedSettings } from "$lib/svelte/stores.svelte";
+  import { settings } from "$lib/svelte/stores.svelte";
   import Header from "./Header.svelte";
 
   initPressedKeys();
@@ -36,13 +36,13 @@
     let unsubscribe = () => {};
     let cleanedUp = false;
 
-    if (cachedSettings.current.midiDeviceId) {
-      getMidiDevice(cachedSettings.current.midiDeviceId, (err, input) => {
+    if (settings.current.midiDeviceId) {
+      getMidiDevice(settings.current.midiDeviceId, (err, input) => {
         if (cleanedUp) return;
 
         if (err || !input) {
           console.error(err);
-          cachedSettings.current.midiDeviceId = null;
+          settings.current.midiDeviceId = null;
           return;
         }
 

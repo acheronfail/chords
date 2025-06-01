@@ -12,6 +12,7 @@
   import { TriangleAlertIcon } from "@lucide/svelte";
   import { base } from "$app/paths";
   import type { ChordOptions, Result } from "./common";
+  import { settings } from "../../../lib/svelte/stores.svelte";
 
   let pressedKeys = getPressedKeys();
   let chordsToPlay = $state<Chord[]>([]);
@@ -19,9 +20,6 @@
   let chordResults = $state<Result[]>([]);
   let currentChordIndex = $state(0);
   let settingsOpen = $state(true);
-  let showPianoRoll = $state(false);
-  let showPianoRollNotes = $state(true);
-  let randomInversions = $state(false);
 
   let chordKey = $derived(createChordMapKey(pressedKeys));
   let possibleChords = $derived(chordsByNotes.get(chordKey));
@@ -29,7 +27,7 @@
     chordsToPlay.map((chord) => ({
       sharps: Math.random() < 0.5,
       inversion:
-        page.params.kind === "notes" && randomInversions
+        page.params.kind === "notes" && settings.current.practice.randomInversions
           ? Math.floor(Math.random() * chord.intervals().length)
           : undefined,
     })),
@@ -155,13 +153,7 @@
 </script>
 
 {#if settingsOpen}
-  <LeadSheetSettings
-    bind:chordsToPlay
-    bind:timerDuration
-    bind:showPianoRoll
-    bind:randomInversions
-    {onStart}
-  />
+  <LeadSheetSettings bind:chordsToPlay bind:timerDuration {onStart} />
 {:else}
   <div class="flex flex-col gap-4">
     {#if page.params.kind === "symbols"}
@@ -225,11 +217,11 @@
       </div>
     </div>
 
-    {#if showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}
+    {#if settings.current.practice.showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}
       {@const options = chordOptions[currentChordIndex]}
       <PianoRoll
         showSharps={options?.sharps}
-        showNames={showPianoRollNotes}
+        showNames={settings.current.practice.showPianoRollNotes}
         highlightedKeys={new Set(
           chordsToPlay[currentChordIndex].inversion(options?.inversion ?? 0),
         )}

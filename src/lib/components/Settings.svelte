@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cachedSettings, settings } from "../svelte/stores.svelte";
+  import { settings } from "../svelte/stores.svelte";
 
   import Blanket from "./Blanket.svelte";
   import { type Device, getMidiDevices } from "$lib/midi";
@@ -20,8 +20,8 @@
   }
 
   refreshDevices().then(() => {
-    if (cachedSettings.current.midiDeviceId === null && midiDevices.length > 0) {
-      cachedSettings.current.midiDeviceId = midiDevices[0].id;
+    if (settings.current.midiDeviceId === null && midiDevices.length > 0) {
+      settings.current.midiDeviceId = midiDevices[0].id;
     }
   });
 </script>
@@ -31,7 +31,7 @@
     <h3 class="font-bold">MIDI</h3>
     <label for="midiDeviceId" class="label">Selected Device</label>
     <div class="flex items-center gap-2">
-      <select id="midiDeviceId" class="select" bind:value={cachedSettings.current.midiDeviceId}>
+      <select id="midiDeviceId" class="select" bind:value={settings.current.midiDeviceId}>
         <option disabled value={null}>- please choose a device -</option>
         {#each midiDevices as device}
           <option value={device.id}>{device.name}</option>
