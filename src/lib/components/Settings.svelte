@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cachedSettings, settings, settingsReset } from "../stores.svelte";
+  import { cachedSettings, settings } from "../stores.svelte";
 
   import Blanket from "./Blanket.svelte";
   import { type Device, getMidiDevices } from "$lib/midi";
@@ -50,7 +50,9 @@
         <span class="label-text">First key on piano roll</span>
         <select id="pianoRollMinKey" class="select" bind:value={settings.current.pianoRollMinKey}>
           {#each availableKeys.slice(0, settings.current.pianoRollMaxKey - 12 + 1) as key}
-            <option value={key}>{midiNumberToNoteName(key, { sharps: true })}</option>
+            <option value={key}
+              >{midiNumberToNoteName(key, { sharps: true, withNumber: true })}</option
+            >
           {/each}
         </select>
       </label>
@@ -58,7 +60,9 @@
         <span class="label-text">Last key on piano roll</span>
         <select id="pianoRollMaxKey" class="select" bind:value={settings.current.pianoRollMaxKey}>
           {#each availableKeys.slice(settings.current.pianoRollMinKey + 12) as key}
-            <option value={key}>{midiNumberToNoteName(key, { sharps: true })}</option>
+            <option value={key}
+              >{midiNumberToNoteName(key, { sharps: true, withNumber: true })}</option
+            >
           {/each}
         </select>
       </label>
@@ -66,7 +70,7 @@
   </div>
 
   <div class="flex flex-col">
-    <button class="btn preset-outlined-surface-500 mt-10" onclick={settingsReset}>
+    <button class="btn preset-outlined-surface-500 mt-10" onclick={() => settings.reset()}>
       Reset all settings to defaults
     </button>
     <div class="text-surface-500 flex items-center justify-center">

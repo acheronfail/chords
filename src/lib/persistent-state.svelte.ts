@@ -1,14 +1,23 @@
 // Based on: https://github.com/Rich-Harris/local-storage-test/blob/main/src/lib/storage.svelte.ts
 
 import { tick } from "svelte";
+import { z } from "zod/v4";
 
 export type StorageType = "localStorage" | "sessionStorage";
+export interface Options<T> {
+  key: string;
+  initial: () => T;
+  schema?: z.ZodType<T>;
+  storageType?: StorageType;
+}
 
 export class PersistentState<T> {
   #key: string;
+  #schema?: z.ZodType<T>;
   #version = $state(0);
   #listeners = 0;
-  #value: T | undefined;
+  #initial: () => T;
+  #value: T;
   #storage: Storage;
 
   #handler = (e: StorageEvent) => {
@@ -18,9 +27,11 @@ export class PersistentState<T> {
     this.#version += 1;
   };
 
-  constructor(key: string, initial?: T, storageType: StorageType = "localStorage") {
+  constructor({ key, initial, schema, storageType = "localStorage" }: Options<T>) {
     this.#key = key;
-    this.#value = initial;
+    this.#schema = schema;
+    this.#initial = initial;
+    this.#value = initial();
     this.#storage = storageType === "localStorage" ? localStorage : sessionStorage;
 
     if (typeof this.#storage !== "undefined") {
@@ -30,17 +41,64 @@ export class PersistentState<T> {
     }
   }
 
+  #read(): T {
+    if (typeof this.#storage === "undefined") {
+      return this.#value;
+    }
+
+    const stored = this.#storage.getItem(this.#key);
+    if (stored === null) {
+      return this.#value;
+    }
+
+    let value = this.#value;
+    try {
+      value = JSON.parse(stored);
+    } catch (error) {
+      console.warn("failed to read value", { error, key: this.#key });
+    }
+
+    if (this.#schema) {
+      const result = this.#schema.safeParse(value);
+      if (result.success) {
+        value = result.data;
+      } else {
+        console.warn("failed to validate value", { error: result.error, value });
+      }
+    }
+
+    return value;
+  }
+
+  #write(value: T) {
+    if (typeof this.#storage === "undefined") {
+      return;
+    }
+
+    if (this.#schema) {
+      const result = this.#schema.safeParse(value);
+      if (result.success) {
+        value = result.data;
+      } else {
+        console.error("failed to validate value", { error: result.error, value });
+        value = this.#value;
+      }
+    }
+
+    this.#storage.setItem(this.#key, JSON.stringify(value));
+  }
+
+  reset() {
+    this.current = this.#initial();
+  }
+
   get current(): T {
     this.#version;
 
-    const root =
-      typeof this.#storage !== "undefined"
-        ? JSON.parse(this.#storage.getItem(this.#key) as any)
-        : this.#value;
+    const root = this.#read();
 
     const proxies = new WeakMap();
-
-    const proxy = (value: unknown) => {
+    const proxify = (value: unknown) => {
       if (typeof value !== "object" || value === null) {
         return value;
       }
@@ -50,15 +108,13 @@ export class PersistentState<T> {
         p = new Proxy(value, {
           get: (target, property) => {
             this.#version;
-            return proxy(Reflect.get(target, property));
+            return proxify(Reflect.get(target, property));
           },
           set: (target, property, value) => {
             this.#version += 1;
             Reflect.set(target, property, value);
 
-            if (typeof this.#storage !== "undefined") {
-              this.#storage.setItem(this.#key, JSON.stringify(root));
-            }
+            this.#write(root);
 
             return true;
           },
@@ -87,14 +143,12 @@ export class PersistentState<T> {
         };
       });
     }
-    return proxy(root);
+
+    return proxify(root);
   }
 
   set current(value: T) {
-    if (typeof this.#storage !== "undefined") {
-      this.#storage.setItem(this.#key, JSON.stringify(value));
-    }
-
+    this.#write(value);
     this.#version += 1;
   }
 }
