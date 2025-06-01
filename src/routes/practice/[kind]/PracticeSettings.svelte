@@ -70,20 +70,22 @@
           <button class="btn preset-outlined-surface-500" onclick={noChords}>none</button>
         </div>
       </div>
-      {#each Object.entries(ChordNames) as [kind, [name]]}
-        {@const k = parseInt(kind)}
-        <label
-          class="label flex cursor-pointer items-center justify-start gap-2 select-none"
-          for="kind-{kind}"
-        >
-          <Switch
-            ids={{ hiddenInput: `kind-${kind}` }}
-            checked={kinds.has(k)}
-            onCheckedChange={() => (kinds.has(k) ? kinds.delete(k) : kinds.add(k))}
-          />
-          {name}
-        </label>
-      {/each}
+      <div class="grid grid-cols-2 gap-1">
+        {#each Object.entries(ChordNames) as [kind, [name]]}
+          {@const k = parseInt(kind)}
+          <label
+            class="label flex cursor-pointer items-center justify-start gap-2 select-none"
+            for="kind-{kind}"
+          >
+            <Switch
+              ids={{ hiddenInput: `kind-${kind}` }}
+              checked={kinds.has(k)}
+              onCheckedChange={() => (kinds.has(k) ? kinds.delete(k) : kinds.add(k))}
+            />
+            {name}
+          </label>
+        {/each}
+      </div>
       {#if !kindsValid}
         <span class="text-error-500 text-xs">Must select at least one chord kind</span>
       {/if}
