@@ -63,17 +63,14 @@
     return chordPlayed ?? false;
   });
 
+  let frame: number;
   let timerElapsed = $state(0);
   let timerStopped = $state(true);
   let timerDuration = $derived(settings.current.practice.timerDuration);
-  onMount(() => {
+  const startTimer = () => {
     let last_time = performance.now();
 
-    let frame = requestAnimationFrame(function update(time) {
-      if (!settings.current.practice.timerEnabled) {
-        return;
-      }
-
+    frame = requestAnimationFrame(function update(time) {
       frame = requestAnimationFrame(update);
 
       if (!timerStopped) {
@@ -81,13 +78,11 @@
       }
       last_time = time;
     });
+  };
 
-    return () => {
-      cancelAnimationFrame(frame);
-    };
-  });
+  onMount(() => () => cancelAnimationFrame(frame));
 
-  const next = () => {
+  const nextChord = () => {
     currentChordIndex = Math.min(chordsToPlay.length, currentChordIndex + 1);
     timerElapsed = 0;
     timerStopped = currentChordIndex === chordsToPlay.length;
@@ -99,7 +94,7 @@
       chordResults[currentChordIndex] = "correct";
       timerElapsed = 0;
       timerStopped = true;
-      next();
+      nextChord();
     }
   });
 
@@ -122,7 +117,7 @@
   $effect(() => {
     if (ableToGoNext && pressedKeys.size !== 0) {
       ableToGoNext = false;
-      next();
+      nextChord();
     }
   });
 
@@ -142,13 +137,16 @@
     }
     if (skip && pressedKeys.size === 0) {
       skip = false;
-      next();
+      nextChord();
     }
   });
 
   const onStart = () => {
     timerStopped = false;
     settingsOpen = false;
+    if (settings.current.practice.timerEnabled) {
+      startTimer();
+    }
   };
 </script>
 

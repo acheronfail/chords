@@ -16,7 +16,7 @@ export class PersistentState<T> {
   #schema?: z.ZodType<T>;
   #version = $state(0);
   #listeners = 0;
-  #initial: () => T;
+  #initialise: () => T;
   #value: T;
   #storage: Storage;
 
@@ -27,16 +27,16 @@ export class PersistentState<T> {
     this.#version += 1;
   };
 
-  constructor({ key, initialise: initial, schema, storageType = "localStorage" }: Options<T>) {
+  constructor({ key, initialise, schema, storageType = "localStorage" }: Options<T>) {
     this.#key = key;
     this.#schema = schema;
-    this.#initial = initial;
-    this.#value = initial();
+    this.#initialise = initialise;
+    this.#value = initialise();
     this.#storage = storageType === "localStorage" ? localStorage : sessionStorage;
 
     if (typeof this.#storage !== "undefined") {
       if (this.#storage.getItem(key) === null) {
-        this.#storage.setItem(key, JSON.stringify(initial));
+        this.#storage.setItem(key, JSON.stringify(initialise));
       }
     }
   }
@@ -91,7 +91,7 @@ export class PersistentState<T> {
   }
 
   reset() {
-    this.current = this.#initial();
+    this.current = this.#initialise();
     if (typeof this.#storage !== "undefined") {
       this.#storage.removeItem(this.#key);
     }
@@ -101,34 +101,6 @@ export class PersistentState<T> {
     this.#version;
 
     const root = this.#read();
-
-    const proxies = new WeakMap();
-    const proxify = (value: unknown) => {
-      if (typeof value !== "object" || value === null) {
-        return value;
-      }
-
-      let p = proxies.get(value);
-      if (!p) {
-        p = new Proxy(value, {
-          get: (target, property) => {
-            this.#version;
-            return proxify(Reflect.get(target, property));
-          },
-          set: (target, property, value) => {
-            this.#version += 1;
-            Reflect.set(target, property, value);
-
-            this.#write(root);
-
-            return true;
-          },
-        });
-        proxies.set(value, p);
-      }
-
-      return p;
-    };
 
     if ($effect.tracking()) {
       $effect(() => {
@@ -149,7 +121,14 @@ export class PersistentState<T> {
       });
     }
 
-    return proxify(root);
+    return makeDeepProxy(
+      root,
+      () => this.#version,
+      () => {
+        this.#version += 1;
+        this.#write(root);
+      },
+    );
   }
 
   set current(value: T) {
@@ -157,3 +136,35 @@ export class PersistentState<T> {
     this.#version += 1;
   }
 }
+
+function makeDeepProxy(root: unknown, onRead: () => void, onWrite: () => void) {
+  const proxies = new WeakMap();
+  const walk = (value: unknown) => {
+    if (typeof value !== "object" || value === null) {
+      return value;
+    }
+
+    let p = proxies.get(value);
+    if (!p) {
+      p = new Proxy(value, {
+        get: (target, property) => {
+          onRead();
+          return walk(Reflect.get(target, property));
+        },
+        set: (target, property, value) => {
+          Reflect.set(target, property, value);
+          onWrite();
+
+          return true;
+        },
+      });
+
+      proxies.set(value, p);
+    }
+
+    return p;
+  };
+
+  return walk(root);
+}
+
