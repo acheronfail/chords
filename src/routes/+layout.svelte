@@ -3,9 +3,10 @@
 
   import { getPressedKeys, initPressedKeys } from "$lib/context/midi";
   import { getMidiDevice } from "$lib/midi";
-  import { settings } from "$lib/svelte/stores.svelte";
+  import { cleanUpPreviousSettings, settings } from "$lib/svelte/stores.svelte";
   import Header from "./Header.svelte";
 
+  cleanUpPreviousSettings();
   initPressedKeys();
 
   let { children } = $props();
