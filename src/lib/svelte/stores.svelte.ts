@@ -17,7 +17,8 @@ export const settings = new PersistentState({
       randomInversions: z.boolean(),
       showPianoRoll: z.boolean(),
       showPianoRollNotes: z.boolean(),
-      timerDuration: z.number().nullable(),
+      timerDuration: z.number(),
+      timerEnabled: z.boolean(),
     }),
   }),
   initialise: () => ({
@@ -31,7 +32,8 @@ export const settings = new PersistentState({
       randomInversions: false,
       showPianoRoll: false,
       showPianoRollNotes: true,
-      timerDuration: null,
+      timerDuration: 5_000,
+      timerEnabled: true,
     },
   }),
 });

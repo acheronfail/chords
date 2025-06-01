@@ -64,13 +64,13 @@
   });
 
   let timerElapsed = $state(0);
-  let timerDuration = $state<number | null>(5_000);
   let timerStopped = $state(true);
+  let timerDuration = $derived(settings.current.practice.timerDuration);
   onMount(() => {
     let last_time = performance.now();
 
     let frame = requestAnimationFrame(function update(time) {
-      if (timerDuration === null) {
+      if (!settings.current.practice.timerEnabled) {
         return;
       }
 
@@ -153,7 +153,7 @@
 </script>
 
 {#if settingsOpen}
-  <LeadSheetSettings bind:chordsToPlay bind:timerDuration {onStart} />
+  <LeadSheetSettings bind:chordsToPlay onSubmit={onStart} />
 {:else}
   <div class="flex flex-col gap-4">
     {#if page.params.kind === "symbols"}

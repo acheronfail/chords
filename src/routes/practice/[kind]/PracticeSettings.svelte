@@ -10,20 +10,17 @@
   let {
     open = $bindable(true),
     chordsToPlay = $bindable([]),
-    timerDuration = $bindable(5000),
-    onStart,
+    onSubmit,
   }: {
     chordsToPlay?: Chord[];
     open?: boolean;
-    timerDuration: number | null;
-    onStart: () => void;
+    onSubmit: () => void;
   } = $props();
 
   let kinds = new SvelteSet<ChordKind>([ChordKind.Major]);
-  let timerEnabled = $state(true);
 
   let countValid = $derived(settings.current.practice.chordCount >= 5);
-  let timerValid = $derived(timerDuration !== null ? timerDuration >= 100 : true);
+  let timerValid = $derived(settings.current.practice.timerDuration >= 100);
   let kindsValid = $derived(kinds.size > 0);
   let valid = $derived(countValid && kindsValid);
 
@@ -39,7 +36,7 @@
     }
   };
 
-  const begin = () => {
+  const submit = () => {
     open = false;
 
     // generate chords
@@ -50,12 +47,7 @@
     }
     chordsToPlay = shuffle(chordsToPlay).slice(0, settings.current.practice.chordCount);
 
-    // set timer
-    if (!timerEnabled) {
-      timerDuration = null;
-    }
-
-    onStart();
+    onSubmit();
   };
 </script>
 
@@ -131,8 +123,8 @@
       </label>
       <Switch
         ids={{ hiddenInput: "timerEnabled" }}
-        checked={timerEnabled}
-        onCheckedChange={(e) => (timerEnabled = e.checked)}
+        checked={settings.current.practice.timerEnabled}
+        onCheckedChange={(e) => (settings.current.practice.timerEnabled = e.checked)}
       />
     </div>
 
@@ -143,8 +135,8 @@
         class="input"
         name="timer"
         min="100"
-        disabled={!timerEnabled}
-        bind:value={timerDuration}
+        disabled={!settings.current.practice.timerEnabled}
+        bind:value={settings.current.practice.timerDuration}
       />
       {#if !timerValid}
         <span class="text-error-500 text-xs">Must be at least 100</span>
@@ -179,7 +171,7 @@
   </div>
 
   <div class="flex flex-col">
-    <button type="submit" class="btn preset-filled-primary-500" disabled={!valid} onclick={begin}>
+    <button type="submit" class="btn preset-filled-primary-500" disabled={!valid} onclick={submit}>
       Begin!
     </button>
   </div>
