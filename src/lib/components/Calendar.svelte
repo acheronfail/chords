@@ -8,6 +8,7 @@
 
   let {}: {} = $props();
 
+  // TODO update this when day changes?
   let selectedDate = $state(today(tz));
 
   let practiceSet = $derived(new Set(user.current.daysPracticed));

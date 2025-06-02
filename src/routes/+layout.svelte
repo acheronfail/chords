@@ -1,7 +1,10 @@
 <script lang="ts">
   import "../app.css";
 
+  import { Toaster } from "@skeletonlabs/skeleton-svelte";
+
   import { getMidiContext, initMidiContext } from "$lib/context/midi.svelte";
+  import { getToaster, initToasterContext } from "$lib/context/toast";
   import { getMidiDevice } from "$lib/midi";
   import { cleanUpPreviousSettings, settings } from "$lib/svelte/stores.svelte";
 
@@ -9,10 +12,12 @@
   import Sidebar from "./Sidebar.svelte";
 
   cleanUpPreviousSettings();
+  initToasterContext();
   initMidiContext();
 
   let { children } = $props();
 
+  let { toaster } = getToaster();
   let { pressedKeys } = getMidiContext();
 
   const createMessageHandler = (input: MIDIInput) => (message: MIDIMessageEvent) => {
@@ -79,3 +84,5 @@
     </main>
   </div>
 </div>
+
+<Toaster {toaster}></Toaster>

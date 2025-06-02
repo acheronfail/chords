@@ -1,6 +1,7 @@
 import { getContext, setContext } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 import { createChordMapKey } from "$lib/chords";
+import { getToaster } from "./toast";
 
 export type Unsubscribe = () => void;
 export interface Context {
@@ -44,16 +45,33 @@ export function initMidiContext() {
 
     // allow using keyboard for midi input in dev mode
     if (import.meta.env.DEV) {
+      const { toaster } = getToaster();
+
+      let isToggling = false;
+      const toggle = (n: number) =>
+        context.pressedKeys.has(n) ? context.pressedKeys.delete(n) : context.pressedKeys.add(n);
+
       const midiKeys = "awsedftgyhujkolp;";
+
       window.addEventListener("keydown", (e) => {
         const n = midiKeys.indexOf(e.key);
         if (n === -1) return;
-        context.pressedKeys.add(n);
+        isToggling ? toggle(n) : context.pressedKeys.add(n);
       });
+
       window.addEventListener("keyup", (e) => {
+        if (e.key === "z") {
+          isToggling = !isToggling;
+          toaster.info({
+            title: "midi keyboard",
+            description: `sticky keys ${isToggling ? "enabled" : "disabled"}`,
+          });
+        }
+
+        if (isToggling) return;
         const n = midiKeys.indexOf(e.key);
         if (n === -1) return;
-        context.pressedKeys.delete(n);
+        isToggling ? toggle(n) : context.pressedKeys.delete(n);
       });
     }
   }
