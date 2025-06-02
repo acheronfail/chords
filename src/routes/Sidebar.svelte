@@ -63,9 +63,8 @@
     class="bg-surface-900 border-r-surface-800 h-full border-r-1 p-2"
   >
     <div class="flex flex-col items-center justify-center gap-2">
-      <h2 class="text-md font-bold whitespace-nowrap">Practise Calendar</h2>
       <Calendar />
-      {@render titleAndInfo("Total Practise Days", totalDays.toString())}
+      {@render titleAndInfo("Total Days Practised", totalDays.toString())}
       {@render titleAndInfo("Longest Streak", `${longestStreak}`, longestStreakStart)}
     </div>
   </aside>
