@@ -104,8 +104,8 @@
         />
       </div>
       <div class="flex items-center justify-between gap-4">
-        <label class="label cursor-pointer select-none" for="randomInversions"> Clef </label>
-        <select class="select" bind:value={settings.current.practice.clef}>
+        <label class="label cursor-pointer select-none" for="clef"> Clef </label>
+        <select class="select" id="clef" bind:value={settings.current.practice.clef}>
           {#each Object.values(Clef) as clef}
             <option value={clef}>{clef}</option>
           {/each}
