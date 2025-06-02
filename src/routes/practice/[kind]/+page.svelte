@@ -1,18 +1,20 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { TriangleAlertIcon } from "@lucide/svelte";
   import { Progress } from "@skeletonlabs/skeleton-svelte";
+  import { base } from "$app/paths";
+  import { page } from "$app/state";
 
   import { getPressedKeys, isMidiShortcut } from "$lib/context/midi";
   import { Chord, chordsByNotes, createChordMapKey } from "$lib/chords";
-  import { onMount } from "svelte";
+  import { settings, user } from "$lib/svelte/stores.svelte";
+  import PianoRoll from "$lib/components/PianoRoll.svelte";
+
   import LeadSheetSettings from "./PracticeSettings.svelte";
-  import PianoRoll from "../../../lib/components/PianoRoll.svelte";
   import ChordSymbols from "./ChordSymbols.svelte";
-  import { page } from "$app/state";
   import ChordNotes from "./ChordNotes.svelte";
-  import { TriangleAlertIcon } from "@lucide/svelte";
-  import { base } from "$app/paths";
   import type { ChordOptions, Result } from "./common";
-  import { settings } from "../../../lib/svelte/stores.svelte";
+  import { getLocalTimeZone, today } from "@internationalized/date";
 
   let pressedKeys = getPressedKeys();
   let chordsToPlay = $state<Chord[]>([]);
@@ -53,6 +55,7 @@
     const chordPlayed = possibleChords?.includes(currentChord);
 
     // verify inversions
+    // FIXME: seems to only work with specific octaves?
     if (chordPlayed && options?.inversion !== undefined) {
       const keyIntervals = intervals(Array.from(pressedKeys.values()).sort());
       const targetKeyIntervals = intervals(currentChord.inversion(options.inversion));
@@ -128,6 +131,12 @@
     if (!settingsOpen && currentChordIndex === chordsToPlay.length) {
       // TODO: pop up modal or something with stats
       console.log("complete!");
+      // TODO: convert to/from set somewhere to avoid duplicates
+      const date = today(getLocalTimeZone()).toString();
+      if (!user.current.daysPracticed.includes(date)) {
+        user.current.daysPracticed.push(date);
+      }
+
       timerStopped = true;
     }
   });

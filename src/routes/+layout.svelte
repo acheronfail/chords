@@ -4,12 +4,15 @@
   import { getPressedKeys, initPressedKeys } from "$lib/context/midi";
   import { getMidiDevice } from "$lib/midi";
   import { cleanUpPreviousSettings, settings } from "$lib/svelte/stores.svelte";
+
   import Header from "./Header.svelte";
+  import Sidebar from "./Sidebar.svelte";
 
   cleanUpPreviousSettings();
   initPressedKeys();
 
   let { children } = $props();
+
   let pressedKeys = getPressedKeys();
 
   const createMessageHandler = (input: MIDIInput) => (message: MIDIMessageEvent) => {
@@ -61,9 +64,18 @@
 </script>
 
 <div class="flex h-screen flex-col">
-  <Header classes="" />
+  <Header
+    bind:sidebarCollapsed={settings.current.sidebarCollapsed}
+    classes="border-b-1 border-b-surface-800"
+  />
 
-  <main class="relative grow">
-    {@render children()}
-  </main>
+  <div class="grid h-full grid-cols-1 md:grid-cols-[auto_1fr]">
+    <div class="h-full">
+      <Sidebar bind:collapsed={settings.current.sidebarCollapsed} />
+    </div>
+
+    <main class="relative grow">
+      {@render children()}
+    </main>
+  </div>
 </div>

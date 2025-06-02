@@ -17,6 +17,7 @@
     onSubmit: () => void;
   } = $props();
 
+  // TODO: lift things like this into a context so we don't have to convert to/from arrays?
   let kinds = new SvelteSet<ChordKind>(settings.current.practice.chordKinds);
   $effect(() => {
     const chordKinds = Array.from(kinds.values());

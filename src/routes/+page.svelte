@@ -20,17 +20,17 @@
     {
       href: routes.practiceSymbols,
       icon: PianoIcon,
-      kind: "Practice Chords",
+      kind: "Practise Chords",
       title: "Chord Symbols",
       description:
-        "Practice your ability to recognise and play chords from Chord Symbols; things like Cmaj7, Dm7, G7, etc.",
+        "Practise your ability to recognise and play chords from Chord Symbols; things like Cmaj7, Dm7, G7, etc.",
     },
     {
       href: routes.practiceNotes,
       icon: Music4Icon,
-      kind: "Practice Chords",
+      kind: "Practise Chords",
       title: "Sheet Music",
-      description: "Practice your ability to recognise and play chords when notated on a staff.",
+      description: "Practise your ability to recognise and play chords when notated on a staff.",
     },
   ];
 </script>

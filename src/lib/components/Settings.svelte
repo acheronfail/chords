@@ -4,6 +4,7 @@
   import Blanket from "./Blanket.svelte";
   import { type Device, getMidiDevices } from "$lib/midi";
   import { routes } from "../routes";
+  import { PianoIcon } from "@lucide/svelte";
 
   let {
     open = $bindable(),
@@ -41,7 +42,7 @@
     </div>
     <a href={routes.midiDebug} class="flex items-center justify-end">
       <button class="btn btn-sm preset-outlined-surface-500" onclick={() => (open = false)}>
-        Open MIDI tester
+        Open MIDI tester <PianoIcon size={16} />
       </button>
     </a>
   </div>

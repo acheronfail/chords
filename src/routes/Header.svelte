@@ -1,13 +1,25 @@
 <script lang="ts">
   import { base } from "$app/paths";
   import { page } from "$app/state";
-  import { ArrowLeftIcon, SettingsIcon } from "@lucide/svelte";
+  import {
+    ArrowLeftIcon,
+    PanelRightCloseIcon,
+    PanelRightOpenIcon,
+    SettingsIcon,
+  } from "@lucide/svelte";
   import { AppBar } from "@skeletonlabs/skeleton-svelte";
 
   import { routes } from "$lib/routes";
   import Settings from "../lib/components/Settings.svelte";
 
-  let { classes = "" }: { classes?: string } = $props();
+  let {
+    classes = "",
+    sidebarCollapsed = $bindable(),
+  }: {
+    classes?: string;
+    sidebarCollapsed: boolean;
+  } = $props();
+
   let settingsOpen = $state(false);
 
   let title = $derived.by(() => {
@@ -36,12 +48,24 @@
 
 <AppBar classes="sticky top-0 z-40 {classes}">
   {#snippet lead()}
-    {#if page.url.pathname !== routes.home}
-      <a href={base} class="btn preset-outlined-surface-500">
-        <ArrowLeftIcon />
-        <span>back</span>
-      </a>
-    {/if}
+    <div class="flex items-center gap-2">
+      <button
+        class="btn-icon preset-outlined-surface-500"
+        onclick={() => (sidebarCollapsed = !sidebarCollapsed)}
+      >
+        {#if sidebarCollapsed}
+          <PanelRightCloseIcon />
+        {:else}
+          <PanelRightOpenIcon />
+        {/if}
+      </button>
+      {#if page.url.pathname !== routes.home}
+        <a href={base} class="btn preset-outlined-surface-500">
+          <ArrowLeftIcon />
+          <span>back</span>
+        </a>
+      {/if}
+    </div>
   {/snippet}
   {#snippet trail()}
     <button
@@ -52,5 +76,7 @@
       <SettingsIcon />
     </button>
   {/snippet}
-  <h1>{title}</h1>
+  <div class="flex h-full items-center justify-center">
+    <h1 class="text-lg font-bold">{title}</h1>
+  </div>
 </AppBar>
