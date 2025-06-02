@@ -3,12 +3,12 @@
 
   import { chordsByNotes, createChordMapKey, midiNumberToNoteName } from "$lib/chords";
   import PianoRoll from "$lib/components/PianoRoll.svelte";
-  import { getPressedKeys } from "$lib/context/midi";
+  import { getMidiContext } from "$lib/context/midi.svelte";
   import { settings } from "$lib/svelte/stores.svelte";
 
   const availableKeys = new Array(128).fill(0).map((_, i) => i);
 
-  let pressedKeys = getPressedKeys();
+  let { pressedKeys } = getMidiContext();
   let showNames = $state(true);
   let showSharps = $state(true);
   let pianoRollShowNames = $derived<boolean | "withNumbers">(showNames ? "withNumbers" : false);

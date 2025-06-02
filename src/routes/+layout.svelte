@@ -1,7 +1,7 @@
 <script lang="ts">
   import "../app.css";
 
-  import { getPressedKeys, initPressedKeys } from "$lib/context/midi";
+  import { getMidiContext, initMidiContext } from "$lib/context/midi.svelte";
   import { getMidiDevice } from "$lib/midi";
   import { cleanUpPreviousSettings, settings } from "$lib/svelte/stores.svelte";
 
@@ -9,11 +9,11 @@
   import Sidebar from "./Sidebar.svelte";
 
   cleanUpPreviousSettings();
-  initPressedKeys();
+  initMidiContext();
 
   let { children } = $props();
 
-  let pressedKeys = getPressedKeys();
+  let { pressedKeys } = getMidiContext();
 
   const createMessageHandler = (input: MIDIInput) => (message: MIDIMessageEvent) => {
     if (!message.data) return;

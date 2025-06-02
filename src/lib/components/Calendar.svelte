@@ -59,7 +59,7 @@
                     class="relative size-10 p-0! text-center text-sm"
                   >
                     <Calendar.Day
-                      class="data-selected:preset-filled-primary-100-900  data-unavailable:text-surface-600-400 group relative inline-flex size-10 items-center justify-center rounded border border-transparent bg-transparent p-0 text-sm font-normal whitespace-nowrap data-disabled:pointer-events-none data-disabled:opacity-50 data-outside-month:pointer-events-none data-selected:font-medium data-unavailable:cursor-auto data-unavailable:border-none data-unavailable:line-through"
+                      class="data-selected:preset-filled-surface-300-700  data-unavailable:text-surface-600-400 group relative inline-flex size-10 items-center justify-center rounded border border-transparent bg-transparent p-0 text-sm font-normal whitespace-nowrap data-disabled:pointer-events-none data-disabled:opacity-50 data-outside-month:pointer-events-none data-selected:font-medium data-unavailable:cursor-auto data-unavailable:border-none data-unavailable:line-through"
                     >
                       {#if hasPracticed}
                         <div

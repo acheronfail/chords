@@ -7,11 +7,14 @@
   }: {
     collapsed?: boolean;
   } = $props();
+
+  // TODO: when parent grid breakpoint is hit the X axis transition doesn't make sense
+  const axis = "x";
 </script>
 
 {#if !collapsed}
   <aside
-    transition:slide={{ axis: "x" }}
+    transition:slide={{ axis }}
     class="bg-surface-900 border-r-surface-800 h-full border-r-1 p-2"
   >
     <div class="flex flex-col items-center justify-center gap-2">

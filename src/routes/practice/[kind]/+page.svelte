@@ -5,7 +5,7 @@
   import { base } from "$app/paths";
   import { page } from "$app/state";
 
-  import { getPressedKeys, isMidiShortcut } from "$lib/context/midi";
+  import { getMidiContext } from "$lib/context/midi.svelte";
   import { Chord, chordsByNotes, createChordMapKey } from "$lib/chords";
   import { settings, user } from "$lib/svelte/stores.svelte";
   import PianoRoll from "$lib/components/PianoRoll.svelte";
@@ -16,7 +16,7 @@
   import type { ChordOptions, Result } from "./common";
   import { getLocalTimeZone, today } from "@internationalized/date";
 
-  let pressedKeys = getPressedKeys();
+  let { pressedKeys, onMidiShortcut } = getMidiContext();
   let chordsToPlay = $state<Chord[]>([]);
 
   let chordResults = $state<Result[]>([]);
@@ -85,7 +85,16 @@
     });
   };
 
-  onMount(() => () => cancelAnimationFrame(frame));
+  const cleanUpMidiHandler = onMidiShortcut((shortcut) => {
+    if (shortcut === "skip") {
+      nextChord();
+    }
+  });
+
+  onMount(() => () => {
+    cancelAnimationFrame(frame);
+    cleanUpMidiHandler();
+  });
 
   const nextChord = () => {
     currentChordIndex = Math.min(chordsToPlay.length, currentChordIndex + 1);
@@ -138,18 +147,6 @@
       }
 
       timerStopped = true;
-    }
-  });
-
-  // check for skip
-  let skip = $state(false);
-  $effect(() => {
-    if (isMidiShortcut("skip")) {
-      skip = true;
-    }
-    if (skip && pressedKeys.size === 0) {
-      skip = false;
-      nextChord();
     }
   });
 
@@ -228,13 +225,12 @@
     </div>
 
     {#if settings.current.practice.showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}
+      {@const chord = chordsToPlay[currentChordIndex]}
       {@const options = chordOptions[currentChordIndex]}
       <PianoRoll
         showSharps={options?.sharps}
         showNames={settings.current.practice.showPianoRollNotes}
-        highlightedKeys={new Set(
-          chordsToPlay[currentChordIndex].inversion(options?.inversion ?? 0),
-        )}
+        highlightedKeys={new Set(chord?.inversion(options?.inversion ?? 0))}
         pressedKeys={new Set(pressedKeys.values().map((x) => x % 24))}
         minKey={0}
         maxKey={24}
