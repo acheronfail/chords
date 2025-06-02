@@ -10,11 +10,11 @@
 - [x] save/restore lead sheet settings
 - [x] show different inversions in sheet music practice
 - [x] support bass clef in practice notes?
+- [x] include player stats, with things like "daily streaks, high scores, etc"
 - [ ] endless option for practice
 - [ ] support key signatures in practice notes
     - (`stave.setKeySignature`; but will have to adjust the note names to be in the right key)
 - [ ] gamify the practice sessions (remove countdown progress, but have score logarithmically decreasing)
-- [ ] include player stats, with things like "daily streaks, high scores, etc"
 - [ ] add "midi keyboard" shortcuts to move around the interface
 - [ ] add keyboard shortcuts to move around the interface
 - [ ] content for learning chords?

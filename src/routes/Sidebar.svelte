@@ -11,6 +11,8 @@
     collapsed?: boolean;
   } = $props();
 
+  let selectedDate = $state(today(getLocalTimeZone()));
+
   let totalDays = $derived(user.current.daysPracticed.length);
   let { longestStreak, longestStreakStart } = $derived.by(() => {
     let maxCount = 0;
@@ -63,9 +65,20 @@
     class="bg-surface-900 border-r-surface-800 h-full border-r-1 p-2"
   >
     <div class="flex flex-col items-center justify-center gap-2">
-      <Calendar />
+      <Calendar bind:selectedDate />
       {@render titleAndInfo("Total Days Practised", totalDays.toString())}
-      {@render titleAndInfo("Longest Streak", `${longestStreak}`, longestStreakStart)}
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div
+        class="cursor-pointer"
+        onclick={() => {
+          if (longestStreakStart) {
+            selectedDate = parseDate(longestStreakStart);
+          }
+        }}
+      >
+        {@render titleAndInfo("Longest Streak", `${longestStreak}`, longestStreakStart)}
+      </div>
     </div>
   </aside>
 {/if}

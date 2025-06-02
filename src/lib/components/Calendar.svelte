@@ -1,15 +1,17 @@
 <script lang="ts">
   import { Calendar } from "bits-ui";
-  import { getLocalTimeZone, today } from "@internationalized/date";
+  import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
 
   import { user } from "$lib/svelte/stores.svelte";
   import { onMount } from "svelte";
 
   const tz = getLocalTimeZone();
 
-  let {}: {} = $props();
-
-  let selectedDate = $state(today(tz));
+  let {
+    selectedDate = $bindable(today(tz)),
+  }: {
+    selectedDate?: CalendarDate;
+  } = $props();
 
   let practiceSet = $derived(new Set(user.current.daysPracticed));
 
@@ -75,7 +77,7 @@
                     class="relative size-10 p-0! text-center text-sm"
                   >
                     <Calendar.Day
-                      class="data-selected:border-surface-300 data-unavailable:text-surface-600-400 group relative inline-flex size-10 items-center justify-center rounded border border-transparent bg-transparent p-0 text-sm font-normal whitespace-nowrap data-disabled:pointer-events-none data-disabled:opacity-50 data-outside-month:pointer-events-none data-selected:font-bold data-unavailable:cursor-auto data-unavailable:border-none data-unavailable:line-through"
+                      class="data-selected:border-surface-300 data-today:border-primary-300 data-unavailable:text-surface-600-400 group relative inline-flex size-10 items-center justify-center rounded border border-transparent bg-transparent p-0 text-sm font-normal whitespace-nowrap data-disabled:pointer-events-none data-disabled:opacity-50 data-outside-month:pointer-events-none data-selected:font-bold data-unavailable:cursor-auto data-unavailable:border-none data-unavailable:line-through"
                     >
                       {#if hasPracticed}
                         <div
