@@ -1,6 +1,9 @@
 <script lang="ts">
-  import Calendar from "$lib/components/Calendar.svelte";
   import { slide } from "svelte/transition";
+  import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+
+  import Calendar from "$lib/components/Calendar.svelte";
+  import { user } from "$lib/svelte/stores.svelte";
 
   let {
     collapsed = $bindable(false),
@@ -8,9 +11,51 @@
     collapsed?: boolean;
   } = $props();
 
+  let totalDays = $derived(user.current.daysPracticed.length);
+  let { longestStreak, longestStreakStart } = $derived.by(() => {
+    let maxCount = 0;
+    let maxStart: string | undefined;
+    let currentCount = 0;
+    let currentStart: string | undefined;
+
+    const update = () => {
+      if (currentCount > maxCount) {
+        maxCount = currentCount;
+        maxStart = currentStart;
+      }
+    };
+
+    for (let i = 0; i < user.current.daysPracticed.length; ++i) {
+      const curr = user.current.daysPracticed[i];
+      const next = user.current.daysPracticed[i + 1];
+
+      if (!currentStart) currentStart = curr;
+
+      const currDate = parseDate(curr);
+      const nextDate = next && parseDate(next);
+      if (!nextDate || currDate.add({ days: 1 }).compare(nextDate) === 0) {
+        currentCount++;
+      } else {
+        update();
+        currentCount = 0;
+        currentStart = undefined;
+      }
+    }
+
+    update();
+    return { longestStreak: maxCount, longestStreakStart: maxStart };
+  });
+
   // TODO: when parent grid breakpoint is hit the X axis transition doesn't make sense
   const axis = "x";
 </script>
+
+{#snippet titleAndInfo(title: string, info: string, alt?: string)}
+  <div class="flex flex-col items-center justify-center gap-2">
+    <h3 class="text-sm font-bold whitespace-nowrap">{title}</h3>
+    <span class="text-sm" title={alt}>{info}</span>
+  </div>
+{/snippet}
 
 {#if !collapsed}
   <aside
@@ -20,8 +65,8 @@
     <div class="flex flex-col items-center justify-center gap-2">
       <h2 class="text-md font-bold whitespace-nowrap">Practise Calendar</h2>
       <Calendar />
-      <!-- TODO: show longest streak (how many days, how many days ago, etc) -->
-      <!-- TODO: hover dates for more info on what was practised maybe? -->
+      {@render titleAndInfo("Total Practise Days", totalDays.toString())}
+      {@render titleAndInfo("Longest Streak", `${longestStreak}`, longestStreakStart)}
     </div>
   </aside>
 {/if}
