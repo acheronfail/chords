@@ -3,15 +3,30 @@
   import { getLocalTimeZone, today } from "@internationalized/date";
 
   import { user } from "$lib/svelte/stores.svelte";
+  import { onMount } from "svelte";
 
   const tz = getLocalTimeZone();
 
   let {}: {} = $props();
 
-  // TODO update this when day changes?
   let selectedDate = $state(today(tz));
 
   let practiceSet = $derived(new Set(user.current.daysPracticed));
+
+  let timer = (function dayTimer() {
+    const nowMs = Date.now();
+    const tomorrow = today(tz).add({ days: 1 });
+    const tomorrowMs = tomorrow.toDate(tz).getTime();
+    return setTimeout(
+      () => {
+        selectedDate = tomorrow;
+        timer = dayTimer();
+      },
+      tomorrowMs - nowMs + 1_000,
+    );
+  })();
+
+  onMount(() => () => clearTimeout(timer));
 </script>
 
 <Calendar.Root
@@ -60,7 +75,7 @@
                     class="relative size-10 p-0! text-center text-sm"
                   >
                     <Calendar.Day
-                      class="data-selected:preset-filled-surface-300-700  data-unavailable:text-surface-600-400 group relative inline-flex size-10 items-center justify-center rounded border border-transparent bg-transparent p-0 text-sm font-normal whitespace-nowrap data-disabled:pointer-events-none data-disabled:opacity-50 data-outside-month:pointer-events-none data-selected:font-medium data-unavailable:cursor-auto data-unavailable:border-none data-unavailable:line-through"
+                      class="data-selected:border-surface-300 data-unavailable:text-surface-600-400 group relative inline-flex size-10 items-center justify-center rounded border border-transparent bg-transparent p-0 text-sm font-normal whitespace-nowrap data-disabled:pointer-events-none data-disabled:opacity-50 data-outside-month:pointer-events-none data-selected:font-bold data-unavailable:cursor-auto data-unavailable:border-none data-unavailable:line-through"
                     >
                       {#if hasPracticed}
                         <div
