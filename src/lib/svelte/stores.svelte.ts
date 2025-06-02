@@ -6,7 +6,7 @@ import { ChordKind, Clef } from "../chords";
 // as the data will be migrated to a new key
 const SETTINGS_VERSION = 0;
 
-const getStorageKey = (version: number) => `settings_v${SETTINGS_VERSION}`;
+const getStorageKey = (version: number) => `settings_v${version}`;
 export function cleanUpPreviousSettings() {
   let version = SETTINGS_VERSION;
 
