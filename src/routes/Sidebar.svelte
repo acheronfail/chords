@@ -62,7 +62,7 @@
 {#if !collapsed}
   <aside
     transition:slide={{ axis }}
-    class="bg-surface-900 border-r-surface-800 h-full border-r-1 p-2"
+    class="bg-surface-900 border-r-surface-800 flex h-full flex-col justify-between border-r-1 p-2"
   >
     <div class="flex flex-col items-center justify-center gap-2">
       <Calendar bind:selectedDate />
@@ -70,7 +70,7 @@
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div
-        class="cursor-pointer"
+        class="hover:text-surface-800-200 cursor-pointer"
         onclick={() => {
           if (longestStreakStart) {
             selectedDate = parseDate(longestStreakStart);
@@ -79,6 +79,10 @@
       >
         {@render titleAndInfo("Longest Streak", `${longestStreak}`, longestStreakStart)}
       </div>
+    </div>
+
+    <div class="text-surface-700-300 text-center text-xs whitespace-nowrap">
+      all data stored locally in your browser
     </div>
   </aside>
 {/if}
