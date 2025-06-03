@@ -51,12 +51,13 @@ export function initMidiContext() {
       const toggle = (n: number) =>
         context.pressedKeys.has(n) ? context.pressedKeys.delete(n) : context.pressedKeys.add(n);
 
-      const midiKeys = "awsedftgyhujkolp;";
+      const midiKeys = "awsedftgyhujkolp;'";
 
       window.addEventListener("keydown", (e) => {
         const n = midiKeys.indexOf(e.key);
         if (n === -1) return;
         isToggling ? toggle(n) : context.pressedKeys.add(n);
+        e.preventDefault();
       });
 
       window.addEventListener("keyup", (e) => {
@@ -72,6 +73,7 @@ export function initMidiContext() {
         const n = midiKeys.indexOf(e.key);
         if (n === -1) return;
         isToggling ? toggle(n) : context.pressedKeys.delete(n);
+        e.preventDefault();
       });
     }
   }
