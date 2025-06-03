@@ -46,6 +46,7 @@
       </Calendar.PrevButton>
       <Calendar.Heading
         class="cursor-pointer text-sm font-bold"
+        title="Click to return to today"
         onclick={() => (selectedDate = today(tz))}
       />
       <Calendar.NextButton class="btn-icon preset-outlined-surface-200-800">
