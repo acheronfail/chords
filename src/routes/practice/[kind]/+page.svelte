@@ -55,9 +55,8 @@
     const chordPlayed = possibleChords?.includes(currentChord);
 
     // verify inversions
-    // FIXME: seems to only work with specific octaves?
     if (chordPlayed && options?.inversion !== undefined) {
-      const keyIntervals = intervals(Array.from(pressedKeys.values()).sort());
+      const keyIntervals = intervals(Array.from(pressedKeys.values()).sort((a, b) => a - b));
       const targetKeyIntervals = intervals(currentChord.inversion(options.inversion));
 
       return keysMatch(keyIntervals, targetKeyIntervals);
@@ -102,13 +101,15 @@
     timerStopped = currentChordIndex === chordsToPlay.length;
   };
 
+  let ableToGoNext = $state(false);
+
   // check if chord matches
   $effect(() => {
     if (chordResults[currentChordIndex] === undefined && chordMatches) {
       chordResults[currentChordIndex] = "correct";
       timerElapsed = 0;
       timerStopped = true;
-      nextChord();
+      ableToGoNext = true;
     }
   });
 
@@ -120,7 +121,6 @@
   });
 
   // check if able to go next
-  let ableToGoNext = $state(false);
   $effect(() => {
     if (chordResults[currentChordIndex] === "missed" && chordMatches) {
       ableToGoNext = true;
@@ -194,7 +194,7 @@
     </div>
 
     <div class="m-auto flex w-2/3 flex-col gap-4 p-8 text-center">
-      {#if timerDuration !== null}
+      {#if settings.current.practice.timerEnabled}
         <label class="label flex flex-row items-center gap-2 whitespace-nowrap">
           Time remaining:
           <progress
