@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { Factory } from "vexflow";
-  import { Clef, isMidiNumberBlackNote, midiNumberToNoteName, type Chord } from "$lib/chords";
-  import type { ChordOptions, Result } from "./common";
   import { onMount } from "svelte";
-  import { settings } from "../../../lib/svelte/stores.svelte";
+  import { Factory } from "vexflow";
+
+  import { Clef, isMidiNumberBlackNote, midiNumberToNoteName, type Chord } from "$lib/chords";
+  import { settings } from "$lib/svelte/stores.svelte";
+
+  import type { ChordOptions, Result } from "./common";
 
   let {
     currentChordIndex,
@@ -29,15 +31,19 @@
     update();
   });
 
-  // re-render when window resized
+  // re-render when resized
   onMount(() => {
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+    const observer = new ResizeObserver(update);
+    observer.observe(parentDiv);
+    return () => {
+      observer.disconnect();
+    };
   });
 
   // see https://github.com/0xfe/vexflow/blob/master/tests/bach_tests.ts
   // for a good example of how to build bars
   let div: HTMLDivElement;
+  let parentDiv: HTMLDivElement;
 
   const makeTransparent = (cssStyle: string, pct: number) =>
     `color-mix(in srgb, ${cssStyle} ${pct}%, transparent)`;
@@ -68,14 +74,18 @@
     return { fillStyle: style, strokeStyle: style };
   };
 
+  const padding = 16;
   function renderMusic(indices: number[], clef: Clef) {
     const box = div.getBoundingClientRect();
     div.innerHTML = "";
 
-    const width = Math.max(200, box.width);
+    const fullWidth = Math.max(200, box.width);
+    const staveWidth = fullWidth - padding * 2 - 5;
 
-    const factory = new Factory({ renderer: { elementId: div.id, width: width, height: 150 } });
-    const system = factory.System({ width: width - box.left - 40 });
+    const factory = new Factory({
+      renderer: { elementId: div.id, width: fullWidth, height: 150 },
+    });
+    const system = factory.System({ width: staveWidth, x: padding });
     const score = factory.EasyScore();
 
     // set time signature to allow enough space for all chords in bar
@@ -130,9 +140,9 @@
   }
 </script>
 
-<div class="relative p-4">
+<div bind:this={parentDiv} class="relative max-w-full overflow-hidden p-4">
   <div
-    class=" card preset-filled-surface-100-900 border-surface-700 w-full border p-[16px]"
+    class="card preset-filled-surface-100-900 border-surface-700 border px-[{padding}px]"
     id="staff"
     bind:this={div}
   ></div>

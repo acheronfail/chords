@@ -68,18 +68,18 @@
   });
 </script>
 
-<div class="flex h-screen flex-col">
+<div class="relative flex h-screen w-screen max-w-screen flex-col">
   <Header
     bind:sidebarCollapsed={settings.current.sidebarCollapsed}
     classes="border-b-1 border-b-surface-800"
   />
 
-  <div class="grid h-full grid-cols-1 md:grid-cols-[auto_1fr]">
+  <div class="grid h-full max-w-full min-w-0 grid-cols-1 md:grid-cols-[auto_1fr]">
     <div class="h-full">
       <Sidebar bind:collapsed={settings.current.sidebarCollapsed} />
     </div>
 
-    <main class="relative grow">
+    <main class="relative max-w-full min-w-0 grow">
       {@render children()}
     </main>
   </div>

@@ -162,7 +162,7 @@
 {#if settingsOpen}
   <LeadSheetSettings bind:chordsToPlay onSubmit={onStart} />
 {:else}
-  <div class="flex flex-col gap-4">
+  <div class="relative flex h-full flex-col justify-between gap-4">
     {#if page.params.kind === "symbols"}
       <ChordSymbols {currentChordIndex} {chordsToPlay} {chordResults} {chordOptions} />
     {:else if page.params.kind === "notes"}
@@ -227,14 +227,17 @@
     {#if settings.current.practice.showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}
       {@const chord = chordsToPlay[currentChordIndex]}
       {@const options = chordOptions[currentChordIndex]}
-      <PianoRoll
-        showSharps={options?.sharps}
-        showNames={settings.current.practice.showPianoRollNotes}
-        highlightedKeys={new Set(chord?.inversion(options?.inversion ?? 0))}
-        pressedKeys={new Set(pressedKeys.values().map((x) => x % 24))}
-        minKey={0}
-        maxKey={24}
-      />
+      <div class="relative flex grow items-center justify-center">
+        <PianoRoll
+          class="h-full"
+          showSharps={options?.sharps}
+          showNames={settings.current.practice.showPianoRollNotes}
+          highlightedKeys={new Set(chord?.inversion(options?.inversion ?? 0))}
+          pressedKeys={new Set(pressedKeys.values().map((x) => x % 24))}
+          minKey={0}
+          maxKey={24}
+        />
+      </div>
     {/if}
   </div>
 {/if}

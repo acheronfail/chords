@@ -18,6 +18,7 @@
     showSharps = true,
     minKey,
     maxKey,
+    class: classes = "",
   }: {
     pressedKeys: Set<number>;
     highlightedKeys?: Set<number>;
@@ -25,6 +26,7 @@
     showSharps?: boolean;
     minKey?: number;
     maxKey?: number;
+    class?: string;
   } = $props();
 
   const SVG_WIDTH = 100;
@@ -106,7 +108,8 @@
   version="1.1"
   viewBox="0 0 {SVG_WIDTH} {svgHeight}"
   role="graphics-object"
-  class="bg-surface-50"
+  preserveAspectRatio="xMidYMid meet"
+  class={classes}
 >
   <g>
     {#each keys as key}
