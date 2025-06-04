@@ -4,6 +4,7 @@
 
   import { user } from "$lib/svelte/stores.svelte";
   import { onMount } from "svelte";
+  import { TrophyIcon, MedalIcon } from "@lucide/svelte";
 
   const tz = getLocalTimeZone();
 
@@ -82,8 +83,13 @@
                     >
                       {#if hasPracticed}
                         <div
-                          class="bg-success-900 absolute flex size-9 items-center justify-center rounded"
+                          class="bg-success-900 absolute flex size-9 flex-col items-center justify-center rounded"
+                          title="TODO: total score for the day"
                         >
+                          <div class="mt-1 flex flex-row items-center justify-center gap-1">
+                            <TrophyIcon class="text-amber-300" size={10} />
+                            <MedalIcon class="text-amber-500" size={10} />
+                          </div>
                           {date.day}
                         </div>
                       {:else}
