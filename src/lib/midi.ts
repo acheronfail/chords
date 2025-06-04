@@ -27,3 +27,17 @@ export async function getMidiDevice(
 
   callback(new Error(`MIDI device with id ${id} not found`), null);
 }
+
+export function intervals(keys: number[]) {
+  const min = Math.min(...keys);
+  return keys.map((n) => n - min);
+}
+
+export function keysMatch(a: number[], b: number[]) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+
+  return true;
+}

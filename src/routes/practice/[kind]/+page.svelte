@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { TriangleAlertIcon } from "@lucide/svelte";
   import { Progress } from "@skeletonlabs/skeleton-svelte";
   import { base } from "$app/paths";
@@ -16,54 +16,26 @@
   import type { ChordOptions, Result } from "./common";
   import { getLocalTimeZone, today } from "@internationalized/date";
 
-  let { pressedKeys, onMidiShortcut } = getMidiContext();
-  let chordsToPlay = $state<Chord[]>([]);
+  let { pressedKeys, onMidiShortcut, onChord } = getMidiContext();
 
+  let chordsToPlay = $state<Chord[]>([]);
   let chordResults = $state<Result[]>([]);
   let currentChordIndex = $state(0);
   let settingsOpen = $state(true);
 
-  let chordKey = $derived(createChordMapKey(pressedKeys));
-  let possibleChords = $derived(chordsByNotes.get(chordKey));
+  $effect(() => console.log(chordOptions));
+
   let chordOptions = $derived<ChordOptions[]>(
-    chordsToPlay.map((chord) => ({
-      sharps: Math.random() < 0.5,
-      inversion:
-        page.params.kind === "notes" && settings.current.practice.randomInversions
-          ? Math.floor(Math.random() * chord.intervals().length)
-          : undefined,
-    })),
+    chordsToPlay.map((chord) =>
+      untrack(() => ({
+        sharps: Math.random() < 0.5,
+        inversion:
+          page.params.kind === "notes" && settings.current.practice.randomInversions
+            ? Math.floor(Math.random() * chord.intervals().length)
+            : undefined,
+      })),
+    ),
   );
-
-  function intervals(keys: number[]) {
-    const min = Math.min(...keys);
-    return keys.map((n) => n - min);
-  }
-
-  function keysMatch(a: number[], b: number[]) {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; ++i) {
-      if (a[i] !== b[i]) return false;
-    }
-
-    return true;
-  }
-
-  let chordMatches = $derived.by(() => {
-    const currentChord = chordsToPlay[currentChordIndex];
-    const options = chordOptions[currentChordIndex];
-    const chordPlayed = possibleChords?.includes(currentChord);
-
-    // verify inversions
-    if (chordPlayed && options?.inversion !== undefined) {
-      const keyIntervals = intervals(Array.from(pressedKeys.values()).sort((a, b) => a - b));
-      const targetKeyIntervals = intervals(currentChord.inversion(options.inversion));
-
-      return keysMatch(keyIntervals, targetKeyIntervals);
-    }
-
-    return chordPlayed ?? false;
-  });
 
   // TODO: rather than a timer, keep track of time and apply a score (logarithmic)
   // which increases the shorter time between notes? set this as the score?
@@ -85,7 +57,7 @@
   };
 
   const cleanUpMidiHandler = onMidiShortcut((shortcut) => {
-    if (shortcut === "skip") {
+    if (import.meta.env.DEV && shortcut === "skip") {
       nextChord();
     }
   });
@@ -101,37 +73,26 @@
     timerStopped = currentChordIndex === chordsToPlay.length;
   };
 
-  let ableToGoNext = $state(false);
-
-  // check if chord matches
   $effect(() => {
-    if (chordResults[currentChordIndex] === undefined && chordMatches) {
-      chordResults[currentChordIndex] = "correct";
-      timerElapsed = 0;
-      timerStopped = true;
-      ableToGoNext = true;
-    }
+    const removeListener = onChord(
+      chordsToPlay[currentChordIndex],
+      chordOptions[currentChordIndex]?.inversion,
+      () => {
+        if (chordResults[currentChordIndex] === undefined) {
+          chordResults[currentChordIndex] = "correct";
+        }
+
+        nextChord();
+      },
+    );
+
+    return () => removeListener();
   });
 
   // check if timed out
   $effect(() => {
     if (timerDuration !== null && timerElapsed >= timerDuration) {
       chordResults[currentChordIndex] = "missed";
-    }
-  });
-
-  // check if able to go next
-  $effect(() => {
-    if (chordResults[currentChordIndex] === "missed" && chordMatches) {
-      ableToGoNext = true;
-    }
-  });
-
-  // go next
-  $effect(() => {
-    if (ableToGoNext && pressedKeys.size !== 0) {
-      ableToGoNext = false;
-      nextChord();
     }
   });
 
