@@ -111,7 +111,8 @@ export class Chord {
 
   /** return notes (starting from lowest midi octave) in a particular inversion */
   inversion(nth: number): number[] {
-    return [...this.notes.slice(nth), ...this.notes.slice(0, nth).map((n) => n + 12)];
+    const notes = [...this.notes.slice(nth), ...this.notes.slice(0, nth).map((n) => n + 12)];
+    return Math.min(...notes) < 12 ? notes : notes.map((n) => n - 12);
   }
 }
 
