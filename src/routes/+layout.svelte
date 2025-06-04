@@ -74,12 +74,14 @@
     classes="border-b-1 border-b-surface-800"
   />
 
-  <div class="grid h-full max-w-full min-w-0 grid-cols-1 md:grid-cols-[auto_1fr]">
+  <div
+    class="grid h-full max-h-full min-h-0 max-w-full min-w-0 grid-cols-1 md:grid-cols-[auto_1fr]"
+  >
     <div class="h-full">
       <Sidebar bind:collapsed={settings.current.sidebarCollapsed} />
     </div>
 
-    <main class="relative max-w-full min-w-0 grow">
+    <main class="relative max-h-full min-h-0 max-w-full min-w-0 grow">
       {@render children()}
     </main>
   </div>

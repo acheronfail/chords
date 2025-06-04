@@ -162,38 +162,41 @@
 {#if settingsOpen}
   <LeadSheetSettings bind:chordsToPlay onSubmit={onStart} />
 {:else}
-  <div class="relative flex h-full flex-col justify-between gap-4">
-    {#if page.params.kind === "symbols"}
-      <ChordSymbols {currentChordIndex} {chordsToPlay} {chordResults} {chordOptions} />
-    {:else if page.params.kind === "notes"}
-      <ChordNotes {currentChordIndex} {chordsToPlay} {chordResults} {chordOptions} />
-    {:else}
-      <div class="p-4">
-        <div
-          class="card preset-outlined-error-500 grid grid-cols-1 items-center gap-4 p-4 lg:grid-cols-[auto_1fr_auto]"
-        >
-          <TriangleAlertIcon />
-          <div>
-            <p class="font-bold">Something went wrong!</p>
-            <p class="text-xs opacity-60">
-              Try going back to <a class="text-primary-500 underline" href={base}>the homepage</a>?
-            </p>
+  <div class="relative flex h-full max-h-full flex-col justify-between gap-4">
+    <div class="max-h-full min-h-0 max-w-full min-w-0">
+      {#if page.params.kind === "symbols"}
+        <ChordSymbols {currentChordIndex} {chordsToPlay} {chordResults} {chordOptions} />
+      {:else if page.params.kind === "notes"}
+        <ChordNotes {currentChordIndex} {chordsToPlay} {chordResults} {chordOptions} />
+      {:else}
+        <div class="p-4">
+          <div
+            class="card preset-outlined-error-500 grid grid-cols-1 items-center gap-4 p-4 lg:grid-cols-[auto_1fr_auto]"
+          >
+            <TriangleAlertIcon />
+            <div>
+              <p class="font-bold">Something went wrong!</p>
+              <p class="text-xs opacity-60">
+                Try going back to <a class="text-primary-500 underline" href={base}>the homepage</a
+                >?
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    {/if}
-
-    <div class="flex items-center justify-center">
-      {#if chordResults[currentChordIndex] === "missed"}
-        Ahh, better luck next time! Play the chord to continue.
-      {:else if currentChordIndex === chordsToPlay.length}
-        Complete!
-      {:else}
-        <span class="font-bold">Play this chord...</span>
       {/if}
     </div>
 
     <div class="m-auto flex w-2/3 flex-col gap-4 p-8 text-center">
+      <div class="flex items-center justify-center">
+        {#if chordResults[currentChordIndex] === "missed"}
+          Ahh, better luck next time! Play the chord to continue.
+        {:else if currentChordIndex === chordsToPlay.length}
+          Complete!
+        {:else}
+          <span class="font-bold">Play this chord...</span>
+        {/if}
+      </div>
+
       {#if settings.current.practice.timerEnabled}
         <label class="label flex flex-row items-center gap-2 whitespace-nowrap">
           Time remaining:
@@ -227,7 +230,7 @@
     {#if settings.current.practice.showPianoRoll || (chordResults[currentChordIndex] === "missed" && chordsToPlay[currentChordIndex])}
       {@const chord = chordsToPlay[currentChordIndex]}
       {@const options = chordOptions[currentChordIndex]}
-      <div class="relative flex grow items-center justify-center">
+      <div class="relative flex max-h-2/5 items-center justify-center">
         <PianoRoll
           class="h-full"
           showSharps={options?.sharps}
