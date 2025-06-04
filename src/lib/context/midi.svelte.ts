@@ -24,7 +24,7 @@ export function initMidiContext() {
       fn: () => void;
     }>();
 
-    const context: Context = {
+    const context: Context = setContext(key, {
       pressedKeys: new SvelteSet<number>(),
       onChord: (chord, inversion, fn) => {
         const val = { chord, inversion, fn };
@@ -35,9 +35,7 @@ export function initMidiContext() {
         midiShortcutListeners.add(fn);
         return () => midiShortcutListeners.delete(fn);
       },
-    };
-
-    setContext(key, context);
+    });
 
     const pressedShortcuts = new Set<MidiShortcut>();
     $effect(() => {

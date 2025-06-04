@@ -23,8 +23,6 @@
   let currentChordIndex = $state(0);
   let settingsOpen = $state(true);
 
-  $effect(() => console.log(chordOptions));
-
   let chordOptions = $derived<ChordOptions[]>(
     chordsToPlay.map((chord) =>
       untrack(() => ({
@@ -74,17 +72,14 @@
   };
 
   $effect(() => {
-    const removeListener = onChord(
-      chordsToPlay[currentChordIndex],
-      chordOptions[currentChordIndex]?.inversion,
-      () => {
-        if (chordResults[currentChordIndex] === undefined) {
-          chordResults[currentChordIndex] = "correct";
-        }
+    const idx = currentChordIndex;
+    const removeListener = onChord(chordsToPlay[idx], chordOptions[idx]?.inversion, () => {
+      if (chordResults[idx] === undefined) {
+        chordResults[idx] = "correct";
+      }
 
-        nextChord();
-      },
-    );
+      nextChord();
+    });
 
     return () => removeListener();
   });
@@ -179,11 +174,11 @@
 
       <div class="flex flex-row items-center justify-center gap-2 text-xs">
         <span class="text-success-500">
-          {Array.from(chordResults.values().filter((x) => x === "correct")).length} correct
+          {chordResults.filter((x) => x === "correct").length} correct
         </span>
         <span class="text-surface-500">|</span>
         <span class="text-error-500">
-          {Array.from(chordResults.values().filter((x) => x === "missed")).length} missed
+          {chordResults.filter((x) => x === "missed").length} missed
         </span>
       </div>
     </div>
