@@ -11,6 +11,7 @@
 - [x] show different inversions in sheet music practice
 - [x] support bass clef in practice notes?
 - [x] include player stats, with things like "daily streaks, high scores, etc"
+- [ ] refactor `$effect` blocks in practice (move logic into midi context)
 - [ ] endless option for practice
 - [ ] support key signatures in practice notes
     - (`stave.setKeySignature`; but will have to adjust the note names to be in the right key)
